@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('nombres');
             $table->string('apellidos');
-            $table->string('correo', 200)->unique();
-            $table->string('clave');
+            $table->string('email', 200)->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
             $table->string('telefono', 20)->nullable();
             $table->enum('sexo', ['masculino', 'femenino'])->nullable();
             $table->enum('estado', ['activo', 'inactivo'])->default('activo');
