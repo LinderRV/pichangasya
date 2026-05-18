@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Web\PaginasController;
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\Usuario\UsuarioController;
+use App\Http\Controllers\Admin\Rol\RolController;
+
 Route::get('/', [PaginasController::class, 'inicio'])->name('home');
 
 
@@ -23,11 +27,34 @@ Route::prefix('web')
 
 
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+
 
 Route::middleware('auth')->group(function () {
+
+    Route::controller(UsuarioController::class)->group(function () {
+        Route::prefix('admin')->group(function () {
+            Route::prefix('usuarios')->group(function () {
+                Route::get('/', [UsuarioController::class, 'index'])->name('admin.usuarios.index');
+            });
+            
+        });
+        
+    });
+
+    Route::controller(RolController::class)->group(function () {
+        Route::prefix('admin')->group(function () {
+            Route::prefix('rol')->group(function () {
+                Route::get('/', [RolController::class, 'index'])->name('admin.rol.index');
+            });
+            
+        });
+        
+    });
+
+
+
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

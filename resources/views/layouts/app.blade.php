@@ -150,7 +150,7 @@
             <div class="deznav-scroll">
 				<ul class="metismenu" id="menu">
 
-                      <li><a href="#" class="" href="javascript:void()" aria-expanded="false">
+                      <li><a href="{{ route('dashboard') }}" class="" href="javascript:void()" aria-expanded="false">
 							<i class="flaticon-025-dashboard"></i>
 							<span class="nav-text">Inicio</span>
 						</a>
@@ -161,9 +161,8 @@
 							<span class="nav-text"> Gestion Usuarios</span>
 						</a>
                         <ul aria-expanded="false">
-                            <li><a href="app-profile.html">Usuarios</a></li>
-                            <li><a href="post-details.html">Roles</a></li>
-                            <li><a href="app-calender.html">Permisos</a></li>
+                            <li><a href="{{ route('admin.usuarios.index') }}">Usuarios</a></li>
+                            <li><a href="{{ route('admin.rol.index') }}">Roles</a></li>
                         </ul>
                     </li>
                     <li><a class="has-arrow " href="javascript:void()" aria-expanded="false">
@@ -278,20 +277,7 @@
         <div class="content-body">
             <!-- row -->
 			<div class="container-fluid pt-3">
-				 @yield('content')
-
-				<div class="row">
-					<div class="col-lg-12">
-						<div class="card">
-							<div class="card-header">
-								<h4 class="card-title">Bienvenido a Sistemas Pichanga ya</h4>
-							</div>
-							<div class="card-body">
-								<p>¡Estamos felices de tenerte aquí!</p>
-							</div>
-						</div>
-					</div>
-				</div>
+				 @yield('content')			
 				
             </div>
         </div>
