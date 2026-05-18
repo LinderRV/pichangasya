@@ -13,34 +13,23 @@ class RolSeeder extends Seeder
      */
     public function run(): void
     {
-        $roles = [
+        $rol = [
             [
-                'nombre' => 'Super Admin',
-                'descripcion' => 'Acceso total a todas las funcionalidades'
+                'nombre' => 'Super Admin',// Super Admin
+                'descripcion' => 'Control total del sistema - Acceso total a todas las funcionalidades'
             ],
             [
-                'nombre' => 'Administrador',
-                'descripcion' => 'Gestiona roles, usuarios, reservas, pagos y reportes, pero no tiene acceso a la configuración del sistema'
+                'nombre' => 'Usuario Interno', 
+                'descripcion' => 'Usuario asociado a uno o varios complejos deportivos.'
             ],
             [
-                'nombre' => 'Complejos Admin',
-                'descripcion' => 'Dueños de complejos deportivos, pueden gestionar sus canchas, reservas y pagos'
-            ],
-            [
-                'nombre' => 'Empleados', // Empleados de los complejos deportivos
-                'descripcion' => 'Empleados de los complejos deportivos, pueden gestionar reservas y pagos, pero no tienen acceso a la configuración del complejo'
-            ],
-                [
-                    'nombre' => 'Soporte',
-                    'descripcion' => 'Atiende incidencias, revisa reservas, pagos y problemas reportados sin acceso total al sistema'
-            ],
-            [
-                'nombre' => 'Cliente',
-                'descripcion' => 'Reserva canchas, realiza pagos y visualiza sus reservas, historial de pagos'
+                'nombre' => 'Cliente', 
+                'descripcion' => 'Usuario final que reserva canchas deportivas.'
             ]
+             
 
         ];
 
-            Rol::insert($roles);
+            Rol::insert($rol);
     }
 }

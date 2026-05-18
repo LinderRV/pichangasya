@@ -111,21 +111,24 @@
 							<li class="nav-item dropdown header-profile">
                                 <a class="nav-link" href="javascript:void(0);" role="button" data-bs-toggle="dropdown">
 									<div class="header-info me-3">
-										<span class="fs-18 font-w500 text-end">Roberto</span>
-										<small class="text-end fs-14 font-w400">robert@mail.com</small>
+										<span class="fs-18 font-w500 text-end">{{ Auth::user()->nombres }}</span>
+										<small class="text-end fs-14 font-w400">{{ Auth::user()->email }}</small>
 									</div>
                                     <img src="images/profile/pic1.jpg" width="20" alt="">
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end">
-                                    <a href="app-profile.html" class="dropdown-item ai-icon">
+                                    <a href="{{ route('profile.edit') }}" class="dropdown-item ai-icon">
                                         <svg id="icon-user1" xmlns="http://www.w3.org/2000/svg" class="text-primary" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                                         <span class="ms-2">Perfil </span>
                                     </a>
 
-                                    <a href="page-login.html" class="dropdown-item ai-icon">
-                                        <svg id="icon-logout" xmlns="http://www.w3.org/2000/svg" class="text-danger" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                                        <span class="ms-2">Cerrar sesión </span>
-                                    </a>
+                                    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item ai-icon" style="border:none; background:none; width:100%; text-align:left; padding: .5rem 1rem; cursor:pointer;">
+                                            <svg id="icon-logout" xmlns="http://www.w3.org/2000/svg" class="text-danger" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                            <span class="ms-2">Cerrar sesión </span>
+                                        </button>
+                                    </form>
                                 </div>
                             </li>
 							<li class="nav-item">
@@ -155,35 +158,17 @@
 
                     <li><a class="has-arrow " href="javascript:void()" aria-expanded="false">
 						<i class="flaticon-050-info"></i>
-							<span class="nav-text"> Aplicaciones</span>
+							<span class="nav-text"> Gestion Usuarios</span>
 						</a>
                         <ul aria-expanded="false">
-                            <li><a href="app-profile.html">Perfil</a></li>
-							<li><a href="post-details.html">Detalles de Publicación</a></li>
-                            <li><a class="has-arrow" href="javascript:void()" aria-expanded="false">Email</a>
-                                <ul aria-expanded="false">
-                                    <li><a href="email-compose.html">Redactar</a></li>
-                                    <li><a href="email-inbox.html">Bandeja de entrada</a></li>
-                                    <li><a href="email-read.html">Leer</a></li>
-                                </ul>
-                            </li>
-                            <li><a href="app-calender.html">Calendario</a></li>
-							<li><a class="has-arrow" href="javascript:void()" aria-expanded="false">Tienda</a>
-                                <ul aria-expanded="false">
-                                    <li><a href="ecom-product-grid.html">Cuadrícula de Productos</a></li>
-									<li><a href="ecom-product-list.html">Lista de Productos</a></li>
-									<li><a href="ecom-product-detail.html">Detalles del Producto</a></li>
-									<li><a href="ecom-product-order.html">Orden</a></li>
-									<li><a href="ecom-checkout.html">Checkout</a></li>
-									<li><a href="ecom-invoice.html">Factura</a></li>
-									<li><a href="ecom-customers.html">Clientes</a></li>
-                                </ul>
-                            </li>
+                            <li><a href="app-profile.html">Usuarios</a></li>
+                            <li><a href="post-details.html">Roles</a></li>
+                            <li><a href="app-calender.html">Permisos</a></li>
                         </ul>
                     </li>
                     <li><a class="has-arrow " href="javascript:void()" aria-expanded="false">
 							<i class="flaticon-041-graph"></i>
-							<span class="nav-text">Charts</span>
+							<span class="nav-text">Complejos Deportivos</span>
 						</a>
                         <ul aria-expanded="false">
                             <li><a href="chart-flot.html">Flot</a></li>
@@ -196,7 +181,7 @@
                     </li>
                     <li><a class="has-arrow " href="javascript:void()" aria-expanded="false">
 							<i class="flaticon-086-star"></i>
-							<span class="nav-text">Bootstrap</span>
+							<span class="nav-text">Reservas</span>
 						</a>
                         <ul aria-expanded="false">
                             <li><a href="ui-accordion.html">Accordion</a></li>

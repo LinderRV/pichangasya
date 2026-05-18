@@ -42,6 +42,8 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        // Intentar autenticar con email y password
+        // Laravel usará getAuthPassword() del modelo Usuario que retorna el campo 'clave'
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 

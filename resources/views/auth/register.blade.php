@@ -76,21 +76,41 @@
                             @csrf
 
                             <div class="mb-3">
-                                <label for="name" class="form-label fw-bold">Nombre</label>
+                                <label for="nombres" class="form-label fw-bold">Nombres</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-person" aria-hidden="true"></i></span>
                                     <input
-                                        id="name"
-                                        name="name"
+                                        id="nombres"
+                                        name="nombres"
                                         type="text"
-                                        class="form-control @error('name') is-invalid @enderror"
-                                        value="{{ old('name') }}"
+                                        class="form-control @error('nombres') is-invalid @enderror"
+                                        value="{{ old('nombres') }}"
                                         required
                                         autofocus
                                         autocomplete="name"
-                                        placeholder="Tu nombre"
+                                        placeholder="Tus nombres"
                                     />
-                                    @error('name')
+                                    @error('nombres')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="apellidos" class="form-label fw-bold">Apellidos</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person-vcard" aria-hidden="true"></i></span>
+                                    <input
+                                        id="apellidos"
+                                        name="apellidos"
+                                        type="text"
+                                        class="form-control @error('apellidos') is-invalid @enderror"
+                                        value="{{ old('apellidos') }}"
+                                        required
+                                        autocomplete="family-name"
+                                        placeholder="Tus apellidos"
+                                    />
+                                    @error('apellidos')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -117,38 +137,38 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="password" class="form-label fw-bold">Contraseña</label>
+                                <label for="clave" class="form-label fw-bold">Clave</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-lock" aria-hidden="true"></i></span>
                                     <input
-                                        id="password"
-                                        name="password"
+                                        id="clave"
+                                        name="clave"
                                         type="password"
-                                        class="form-control @error('password') is-invalid @enderror"
+                                        class="form-control @error('clave') is-invalid @enderror"
                                         required
                                         autocomplete="new-password"
                                         placeholder="Mínimo 8 caracteres"
                                     />
-                                    @error('password')
+                                    @error('clave')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="password_confirmation" class="form-label fw-bold">Confirmar contraseña</label>
+                                <label for="clave_confirmation" class="form-label fw-bold">Confirmar Contraseña</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-shield-lock" aria-hidden="true"></i></span>
+                                    <span class="input-group-text"><i class="bi bi-lock-check" aria-hidden="true"></i></span>
                                     <input
-                                        id="password_confirmation"
-                                        name="password_confirmation"
+                                        id="clave_confirmation"
+                                        name="clave_confirmation"
                                         type="password"
-                                        class="form-control @error('password_confirmation') is-invalid @enderror"
+                                        class="form-control @error('clave_confirmation') is-invalid @enderror"
                                         required
                                         autocomplete="new-password"
-                                        placeholder="Repite tu contraseña"
+                                        placeholder="Confirma tu contraseña"
                                     />
-                                    @error('password_confirmation')
+                                    @error('clave_confirmation')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
