@@ -21,14 +21,13 @@
 
 @endsection
 
+
+
 @section('script')
-
-<script>
-
-</script>
+    <script>
+    </script>
 
 @endsection
-
 
 
 

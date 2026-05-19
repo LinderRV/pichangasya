@@ -28,6 +28,9 @@
 
 	<link href="/vendor/jquery-nice-select/css/nice-select.css" rel="stylesheet">
 	<link rel="stylesheet" href="/vendor/dotted-map/css/contrib/jquery.smallipop-0.3.0.min.css" type="text/css" media="all">
+
+    <!-- Datatable -->
+    <link href="/vendor/datatables/css/jquery.dataTables.min.css" rel="stylesheet">
 	<!-- Style css -->
       <link href="/css/style.css" rel="stylesheet">
       
@@ -339,6 +342,10 @@
     <script src="/vendor/dotted-map/js/smallimap.js"></script>
     <script src="/js/dashboard/dotted-map-init.js"></script>
 
+
+    <!-- Datatable -->
+    <script src="/vendor/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="/js/plugins-init/datatables.init.js"></script>
 	
 	
     <script src="/js/custom.min.js"></script>

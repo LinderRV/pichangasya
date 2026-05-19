@@ -46,6 +46,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('admin')->group(function () {
             Route::prefix('rol')->group(function () {
                 Route::get('/', [RolController::class, 'index'])->name('admin.rol.index');
+                Route::get('/lista', [RolController::class, 'listaRol'])->name('admin.rol.lista');
             });
             
         });
