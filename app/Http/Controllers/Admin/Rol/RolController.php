@@ -37,6 +37,28 @@ class RolController extends Controller
         
     }
 
+    public function usuarioId(Request $request)
+    {
+        try {
+            $rol = Rol::find($request->id);
+            if (!$rol) {
+                return response()->json(Service::responseError('Rol no encontrado'), 404);
+            }   
+            
+
+            return response()->json(Service::responseSuccess('Rol obtenido correctamente', $rol));
+        } catch (Exception $e) {
+            return response()->json(Service::responseError('Error Servidor ' . $e->getMessage()));
+        }
+    }
+
+    public function crearUsuario(Request $request)
+    {
+
+
+        
+    }
+
 
 
     
