@@ -26,7 +26,6 @@ class RegisteredUserController extends Controller
      */
     public function store(RegisterRequest $request): RedirectResponse
     {
-        // Crear nuevo usuario con los datos del formulario
         $usuario = Usuario::create([
             'nombres' => $request->nombres,
             'apellidos' => $request->apellidos,
@@ -35,13 +34,10 @@ class RegisteredUserController extends Controller
             'estado' => 'activo',
         ]);
 
-        // Disparar evento de usuario registrado
         event(new Registered($usuario));
 
-        // Iniciar sesión automáticamente
         Auth::login($usuario);
 
-        // Redirigir al dashboard
         return redirect(route('dashboard', absolute: false));
     }
 }
