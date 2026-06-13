@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('id_distrito')->references('id')->on('distritos');
             $table->string('nombre')->unique();
             $table->string('descripcion')->nullable();
-            $table->string('ruc')->nullable();
+            $table->string('ruc')->nullable()->unique();
             $table->string('correo')->unique();
             $table->string('direccion')->nullable();
             $table->string('telefono', 20)->nullable();

@@ -10,14 +10,6 @@ use Illuminate\Support\Facades\Auth;
 class ClienteController extends Controller
 {
     /**
-     * Middleware para asegurar que el usuario esté autenticado
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
-    /**
      * Mostrar el perfil del cliente
      */
     public function perfil()
@@ -31,20 +23,29 @@ class ClienteController extends Controller
     }
 
     /**
-     * Actualizar el perfil del cliente
+     * Mostrar las reservas del cliente (solo lectura)
      */
-    public function actualizarPerfil(Request $request)
+    public function reservas()
     {
         $usuario = Auth::user();
 
-        // Validar datos
+        return view('cliente.reservas', compact('usuario'));
+    }
+
+  
+    public function actualizarPerfil(Request $request)
+    {
+        $usuario = Auth::user();
+        $clienteId = $usuario->cliente ? $usuario->cliente->id : null;
+
+       
         $validated = $request->validate([
             'nombres' => ['required', 'string', 'max:100'],
             'apellidos' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:200', 'unique:usuarios,email,' . $usuario->id],
             'telefono' => ['nullable', 'string', 'max:20'],
             'sexo' => ['nullable', 'in:masculino,femenino'],
-            'documento_identidad' => ['nullable', 'string', 'max:20', 'unique:clientes,documento_identidad,' . ($usuario->cliente->id ?? null)],
+            'documento_identidad' => ['nullable', 'string', 'max:20', 'unique:clientes,documento_identidad,' . $clienteId],
             'direccion' => ['nullable', 'string', 'max:255'],
         ]);
 
@@ -58,13 +59,19 @@ class ClienteController extends Controller
         ]);
 
         // Obtener o crear cliente
-        $cliente = $usuario->cliente ?? new Cliente(['id_usuario' => $usuario->id]);
-        
-        // Actualizar datos del cliente
-        $cliente->update([
-            'documento_identidad' => $validated['documento_identidad'] ?? null,
-            'direccion' => $validated['direccion'] ?? null,
-        ]);
+        $cliente = $usuario->cliente;
+        if ($cliente) {
+            $cliente->update([
+                'documento_identidad' => $validated['documento_identidad'] ?? null,
+                'direccion' => $validated['direccion'] ?? null,
+            ]);
+        } else {
+            Cliente::create([
+                'id_usuario' => $usuario->id,
+                'documento_identidad' => $validated['documento_identidad'] ?? null,
+                'direccion' => $validated['direccion'] ?? null,
+            ]);
+        }
 
         return redirect()->route('cliente.perfil')->with('success', 'Perfil actualizado exitosamente.');
     }

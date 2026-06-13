@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($php = \"C:\\\\laragon\\\\bin\\\\php\\\\php-8.3.30-Win32-vs16-x64\\\\php.exe\"; & $php -l app/Http/Controllers/Complejos/AsignacionController.php)",
+      "PowerShell($php = \"C:\\\\laragon\\\\bin\\\\php\\\\php-8.3.30-Win32-vs16-x64\\\\php.exe\"; & $php artisan migrate:fresh --seed 2>&1 | Select-Object -Last 40)",
+      "PowerShell($php = \"C:\\\\laragon\\\\bin\\\\php\\\\php-8.3.30-Win32-vs16-x64\\\\php.exe\"; & $php -l app/Http/Controllers/Complejos/ComplejoController.php; & $php artisan migrate:fresh --seed 2>&1 | Select-Object -Last 6)"
+    ]
+  }
+}

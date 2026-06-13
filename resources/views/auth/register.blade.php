@@ -3,10 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Registrarse | PichangasYa</title>
     <link rel="icon" type="image/png" href="/images/favicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">
     <style>
         :root{ --pya-green:#198754; --pya-dark:#0b1220; }
         body{ background:#f6f8fb; }
@@ -42,6 +44,12 @@
     </style>
 </head>
 <body>
+    <div id="divLoading" style="display:none; position:fixed; inset:0; z-index:1080; background:rgba(11,18,32,.45); align-items:center; justify-content:center;">
+        <div class="spinner-border text-light" role="status" style="width:3rem; height:3rem;">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
     <div class="auth-shell">
         <aside class="auth-aside" aria-hidden="true">
             <div class="content">
@@ -72,7 +80,7 @@
                         <h2 class="h4 fw-bold mb-1">Crear cuenta</h2>
                         <p class="muted mb-4">Completa tus datos para registrarte.</p>
 
-                        <form method="POST" action="{{ route('register') }}" novalidate>
+                        <form id="formRegistrar" method="POST" action="{{ route('register') }}" novalidate>
                             @csrf
 
                             <div class="mb-3">
@@ -83,16 +91,13 @@
                                         id="nombres"
                                         name="nombres"
                                         type="text"
-                                        class="form-control @error('nombres') is-invalid @enderror"
+                                        class="form-control"
                                         value="{{ old('nombres') }}"
                                         required
                                         autofocus
                                         autocomplete="name"
                                         placeholder="Tus nombres"
                                     />
-                                    @error('nombres')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
                                 </div>
                             </div>
 
@@ -104,15 +109,12 @@
                                         id="apellidos"
                                         name="apellidos"
                                         type="text"
-                                        class="form-control @error('apellidos') is-invalid @enderror"
+                                        class="form-control"
                                         value="{{ old('apellidos') }}"
                                         required
                                         autocomplete="family-name"
                                         placeholder="Tus apellidos"
                                     />
-                                    @error('apellidos')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
                                 </div>
                             </div>
 
@@ -124,15 +126,12 @@
                                         id="email"
                                         name="email"
                                         type="email"
-                                        class="form-control @error('email') is-invalid @enderror"
+                                        class="form-control"
                                         value="{{ old('email') }}"
                                         required
                                         autocomplete="username"
                                         placeholder="tu@correo.com"
                                     />
-                                    @error('email')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
                                 </div>
                             </div>
 
@@ -144,14 +143,11 @@
                                         id="clave"
                                         name="clave"
                                         type="password"
-                                        class="form-control @error('clave') is-invalid @enderror"
+                                        class="form-control"
                                         required
                                         autocomplete="new-password"
                                         placeholder="Mínimo 8 caracteres"
                                     />
-                                    @error('clave')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
                                 </div>
                             </div>
 
@@ -163,14 +159,11 @@
                                         id="clave_confirmation"
                                         name="clave_confirmation"
                                         type="password"
-                                        class="form-control @error('clave_confirmation') is-invalid @enderror"
+                                        class="form-control"
                                         required
                                         autocomplete="new-password"
                                         placeholder="Confirma tu contraseña"
                                     />
-                                    @error('clave_confirmation')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
                                 </div>
                             </div>
 
@@ -194,5 +187,48 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="/pichanga/js/funciones.js"></script>
+    <script>
+        $(function () {
+            $("#formRegistrar").on("submit", function (e) {
+                e.preventDefault();
+                const $form = $(this);
+
+                $.ajax({
+                    url: $form.attr("action"),
+                    type: "POST",
+                    data: $form.serialize(),
+                    dataType: "json",
+                    headers: { "X-Requested-With": "XMLHttpRequest" },
+                    beforeSend: function () {
+                        $form.find(".is-invalid").removeClass("is-invalid");
+                        $form.find(".invalid-feedback").remove();
+                        GS.inicioSolicitud();
+                    },
+                })
+                .done(function (resp) {
+                    GS.toastSuccess(resp.message || "Cuenta creada.");
+                    const destino = resp.data && resp.data.redirect ? resp.data.redirect : "/";
+                    setTimeout(function () { window.location.href = destino; }, 700);
+                })
+                .fail(function (xhr) {
+                    GS.finSolicitud();
+                    if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                        const errores = xhr.responseJSON.errors;
+                        Object.keys(errores).forEach(function (campo) {
+                            const $input = $form.find("[name='" + campo + "']");
+                            $input.addClass("is-invalid");
+                            $input.closest(".input-group").after('<div class="invalid-feedback d-block">' + errores[campo][0] + "</div>");
+                        });
+                        GS.toastError(xhr.responseJSON.message || "Revisa los datos ingresados.");
+                    } else {
+                        GS.toastError("Ocurrió un error. Inténtalo nuevamente.");
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

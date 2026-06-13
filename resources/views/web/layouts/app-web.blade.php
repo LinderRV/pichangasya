@@ -119,10 +119,9 @@
 
                 <div class="collapse navbar-collapse" id="publicNavbar">
                     <ul class="public-nav navbar-nav ms-auto align-items-lg-center gap-lg-1">
-                        <li class="nav-item"><a class="nav-link active" href="{{ route('web.paginas.inicio') }}">Inicio</a></li>
-                        <li class="nav-item"><a class="nav-link" href="">Canchas</a></li>
-                        <li class="nav-item"><a class="nav-link" href="">Como funciona</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Contáctanos</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('web.paginas.inicio') || request()->is('/') ? 'active' : '' }}" href="{{ route('web.paginas.inicio') }}">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('web.paginas.canchas') || request()->routeIs('web.paginas.cancha') ? 'active' : '' }}" href="{{ route('web.paginas.canchas') }}">Canchas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('web.paginas.inicio') }}#como-funciona">Cómo funciona</a></li>
                     </ul>
 
                     <div class="d-flex align-items-lg-center gap-2 ms-lg-3 mt-3 mt-lg-0">

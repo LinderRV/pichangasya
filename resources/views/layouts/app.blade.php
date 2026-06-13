@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 <head>
@@ -12,11 +12,11 @@
 	<meta name="author" content="DexignZone">
 	<meta name="robots" content="">
 
-	<meta name="keywords" content="Desarrollar un sistema web orientado a la gestión integral de reservas de canchas deportivas que permita controlar en tiempo real la disponibilidad, automatizar la asignación de horarios y centralizar la información operativa, con el fin de optimizar la eficiencia del negocio y minimizar pérdidas derivadas de una gestión manual ineficiente.">
-	<meta name="description" content="Sistemas Pichanga ya es un desarrollo inmobiliario de primer nivel que ofrece una variedad de propiedades residenciales de alta calidad diseñadas para satisfacer las diversas necesidades y preferencias de los compradores. Con su compromiso con la excelencia y la atención al detalle, Sistemas Pichanga ya se ha establecido como una marca de confianza en la industria inmobiliaria.">
+	<meta name="keywords" content="Desarrollar un sistema web orientado a la gestiÃ³n integral de reservas de canchas deportivas que permita controlar en tiempo real la disponibilidad, automatizar la asignaciÃ³n de horarios y centralizar la informaciÃ³n operativa, con el fin de optimizar la eficiencia del negocio y minimizar pÃ©rdidas derivadas de una gestiÃ³n manual ineficiente.">
+	<meta name="description" content="Sistemas Pichanga ya es un desarrollo inmobiliario de primer nivel que ofrece una variedad de propiedades residenciales de alta calidad diseÃ±adas para satisfacer las diversas necesidades y preferencias de los compradores. Con su compromiso con la excelencia y la atenciÃ³n al detalle, Sistemas Pichanga ya se ha establecido como una marca de confianza en la industria inmobiliaria.">
 
 	<meta property="og:title" content="Sistemas Pichanga ya">
-	<meta property="og:description" content="Sistemas Pichanga ya es un desarrollo inmobiliario de primer nivel que ofrece una variedad de propiedades residenciales de alta calidad diseñadas para satisfacer las diversas necesidades y preferencias de los compradores. Con su compromiso con la excelencia y la atención al detalle, Sistemas Pichanga ya se ha establecido como una marca de confianza en la industria inmobiliaria.">
+	<meta property="og:description" content="Sistemas Pichanga ya es un desarrollo inmobiliario de primer nivel que ofrece una variedad de propiedades residenciales de alta calidad diseÃ±adas para satisfacer las diversas necesidades y preferencias de los compradores. Con su compromiso con la excelencia y la atenciÃ³n al detalle, Sistemas Pichanga ya se ha establecido como una marca de confianza en la industria inmobiliaria.">
 	<meta property="og:image" content="../griya.dexignzone.com/xhtml/social-image.html">
 	<meta name="format-detection" content="telephone=no">
 
@@ -33,11 +33,20 @@
     <link href="/vendor/datatables/css/jquery.dataTables.min.css" rel="stylesheet">
 	<!-- Style css -->
       <link href="/css/style.css" rel="stylesheet">
-      
+      <link href="/vendor/sweetalert2/dist/sweetalert2.min.css" rel="stylesheet">
+      <link href="/vendor/toastr/css/toastr.min.css" rel="stylesheet">
+
       @yield('link')
-	
+
 </head>
 <body>
+
+    <!-- Overlay de carga para AJAX (GS.inicioSolicitud / GS.finSolicitud) -->
+    <div id="divLoading" style="display:none; position:fixed; inset:0; z-index:1080; background:rgba(11,18,32,.45); align-items:center; justify-content:center;">
+        <div class="spinner-border text-light" role="status" style="width:3rem; height:3rem;">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
 
     <!--*******************
         Preloader start
@@ -61,7 +70,7 @@
             Nav header start
         ***********************************-->
         <div class="nav-header">
-            <a href="index.html" class="brand-logo">
+            <a href="/" class="brand-logo">
 				<svg class="logo-abbr" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<rect class="rect-primary-rect" width="64" height="64" rx="18" fill="#216FED"/>
 					<path d="M33.9126 48.6459H16.7709C15.9917 48.6459 15.3542 48.0084 15.3542 47.2292V22.9334C15.3542 22.1542 15.9917 21.5167 16.7709 21.5167H17.6209C27.3959 21.5167 35.3292 29.45 35.3292 39.225V47.2292C35.2584 48.0084 34.6917 48.6459 33.9126 48.6459ZM18.1167 45.8834H32.4959V39.225C32.4959 31.15 26.1209 24.6334 18.1167 24.35V45.8834Z" fill="#F2F6FC"/>
@@ -86,7 +95,7 @@
         <!--**********************************
             Nav header end
         ***********************************-->
-		
+
 		<!--**********************************
             Chat box start
         ***********************************-->
@@ -94,7 +103,7 @@
 		<!--**********************************
             Chat box End
         ***********************************-->
-		
+
 		<!--**********************************
             Header start
         ***********************************-->
@@ -107,10 +116,10 @@
                                 <a class="nav-link bell dz-theme-mode" href="javascript:void(0);">
 									<i id="icon-light" class="fas fa-sun"></i>
                                     <i id="icon-dark" class="fas fa-moon"></i>
-									
+
                                 </a>
 							</li>
-	
+
 							<li class="nav-item dropdown header-profile">
                                 <a class="nav-link" href="javascript:void(0);" role="button" data-bs-toggle="dropdown">
 									<div class="header-info me-3">
@@ -135,7 +144,7 @@
                                 </div>
                             </li>
 							<li class="nav-item">
-								
+
 							</li>
                         </ul>
                     </div>
@@ -153,143 +162,122 @@
             <div class="deznav-scroll">
 				<ul class="metismenu" id="menu">
 
-                      <li><a href="{{ route('dashboard') }}" class="" href="javascript:void()" aria-expanded="false">
-							<i class="flaticon-025-dashboard"></i>
-							<span class="nav-text">Inicio</span>
-						</a>
-					</li>
+                    @if(Auth::user()->esCliente())
+                        <li><a href="{{ route('cliente.perfil') }}" aria-expanded="false">
+                                <i class="flaticon-050-info"></i>
+                                <span class="nav-text">Mi Perfil</span>
+                            </a>
+                        </li>
+                        <li><a href="{{ route('cliente.reservas') }}" aria-expanded="false">
+                                <i class="flaticon-086-star"></i>
+                                <span class="nav-text">Mis Reservas</span>
+                            </a>
+                        </li>
+                    @else
+                        <li><a href="{{ route('dashboard') }}" aria-expanded="false">
+                            <i class="flaticon-025-dashboard"></i>
+                            <span class="nav-text">Inicio</span>
+                        </a></li>
 
-                    <li><a class="has-arrow " href="javascript:void()" aria-expanded="false">
-						<i class="flaticon-050-info"></i>
-							<span class="nav-text"> Gestion Usuarios</span>
-						</a>
-                        <ul aria-expanded="false">
-                            <li><a href="{{ route('admin.usuarios.index') }}">Usuarios</a></li>
-                            <li><a href="{{ route('admin.rol.index') }}">Roles</a></li>
-                        </ul>
-                    </li>
-                    <li><a class="has-arrow " href="javascript:void()" aria-expanded="false">
-							<i class="flaticon-041-graph"></i>
-							<span class="nav-text">Complejos Deportivos</span>
-						</a>
-                        <ul aria-expanded="false">
-                            <li><a href="chart-flot.html">Flot</a></li>
-                            <li><a href="chart-morris.html">Morris</a></li>
-                            <li><a href="chart-chartjs.html">Chartjs</a></li>
-                            <li><a href="chart-chartist.html">Chartist</a></li>
-                            <li><a href="chart-sparkline.html">Sparkline</a></li>
-                            <li><a href="chart-peity.html">Peity</a></li>
-                        </ul>
-                    </li>
-                    <li><a class="has-arrow " href="javascript:void()" aria-expanded="false">
-							<i class="flaticon-086-star"></i>
-							<span class="nav-text">Reservas</span>
-						</a>
-                        <ul aria-expanded="false">
-                            <li><a href="ui-accordion.html">Accordion</a></li>
-                            <li><a href="ui-alert.html">Alert</a></li>
-                            <li><a href="ui-badge.html">Badge</a></li>
-                            <li><a href="ui-button.html">Button</a></li>
-                            <li><a href="ui-modal.html">Modal</a></li>
-                            <li><a href="ui-button-group.html">Button Group</a></li>
-                            <li><a href="ui-list-group.html">List Group</a></li>
-                            <li><a href="ui-card.html">Cards</a></li>
-                            <li><a href="ui-carousel.html">Carousel</a></li>
-                            <li><a href="ui-dropdown.html">Dropdown</a></li>
-                            <li><a href="ui-popover.html">Popover</a></li>
-                            <li><a href="ui-progressbar.html">Progressbar</a></li>
-                            <li><a href="ui-tab.html">Tab</a></li>
-                            <li><a href="ui-typography.html">Typography</a></li>
-                            <li><a href="ui-pagination.html">Pagination</a></li>
-                            <li><a href="ui-grid.html">Grid</a></li>
-
-                        </ul>
-                    </li>
-                    <li><a class="has-arrow " href="javascript:void()" aria-expanded="false">
-							<i class="flaticon-045-heart"></i>
-							<span class="nav-text">Plugins</span>
-						</a>
-                        <ul aria-expanded="false">
-                            <li><a href="uc-select2.html">Select 2</a></li>
-                            <li><a href="uc-nestable.html">Nestedable</a></li>
-                            <li><a href="uc-noui-slider.html">Noui Slider</a></li>
-                            <li><a href="uc-sweetalert.html">Sweet Alert</a></li>
-                            <li><a href="uc-toastr.html">Toastr</a></li>
-                            <li><a href="map-jqvmap.html">Jqv Map</a></li>
-							<li><a href="uc-lightgallery.html">Light Gallery</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="widget-basic.html" class="" aria-expanded="false">
-							<i class="flaticon-013-checkmark"></i>
-							<span class="nav-text">Widget</span>
-						</a>
-					</li>
-                    <li><a class="has-arrow " href="javascript:void()" aria-expanded="false">
-							<i class="flaticon-072-printer"></i>
-							<span class="nav-text">Forms</span>
-						</a>
-                        <ul aria-expanded="false">
-                            <li><a href="form-element.html">Form Elements</a></li>
-                            <li><a href="form-wizard.html">Wizard</a></li>
-                            <li><a href="form-ckeditor.html">CkEditor</a></li>
-                            <li><a href="form-pickers.html">Pickers</a></li>
-                            <li><a href="form-validation.html">Form Validate</a></li>
-                        </ul>
-                    </li>
-                    <li><a class="has-arrow " href="javascript:void()" aria-expanded="false">
-							<i class="flaticon-043-menu"></i>
-							<span class="nav-text">Table</span>
-						</a>
-                        <ul aria-expanded="false">
-                            <li><a href="table-bootstrap-basic.html">Bootstrap</a></li>
-                            <li><a href="table-datatable-basic.html">Datatable</a></li>
-                        </ul>
-                    </li>
-                    <li><a class="has-arrow " href="javascript:void()" aria-expanded="false">
-							<i class="flaticon-022-copy"></i>
-							<span class="nav-text">Pages</span>
-						</a>
-                        <ul aria-expanded="false">
-                            <li><a href="page-login.html">Login</a></li>
-                            <li><a href="page-register.html">Register</a></li>
-                            <li><a class="has-arrow" href="javascript:void()" aria-expanded="false">Error</a>
+                        @if(Auth::user()->esSuperAdmin())
+                            <li><a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                                <i class="flaticon-050-info"></i>
+                                <span class="nav-text">Gestión Usuarios</span>
+                            </a>
                                 <ul aria-expanded="false">
-                                    <li><a href="page-error-400.html">Error 400</a></li>
-                                    <li><a href="page-error-403.html">Error 403</a></li>
-                                    <li><a href="page-error-404.html">Error 404</a></li>
-                                    <li><a href="page-error-500.html">Error 500</a></li>
-                                    <li><a href="page-error-503.html">Error 503</a></li>
+                                    <li><a href="{{ route('admin.usuarios.index') }}">Usuarios</a></li>
+                                    <li><a href="{{ route('admin.rol.index') }}">Roles</a></li>
                                 </ul>
                             </li>
-                            <li><a href="page-lock-screen.html">Lock Screen</a></li>
-                            <li><a href="empty-page.html">Empty Page</a></li>
-                        </ul>
-                    </li>
-                </ul>
 
+                            <li><a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                                <i class="flaticon-041-graph"></i>
+                                <span class="nav-text">Complejos Deportivos</span>
+                            </a>
+                                <ul aria-expanded="false">
+                                    <li><a href="{{ route('admin.complejos.index') }}">Complejos</a></li>
+                                    <li><a href="{{ route('admin.complejos.asignacion.index') }}">Asignar Dueño</a></li>
+                                    <li><a href="{{ route('admin.canchas.index') }}">Canchas</a></li>
+                                    <li><a href="{{ route('admin.horarios.index') }}">Horarios</a></li>
+                                    <li><a href="{{ route('admin.bloqueos.index') }}">Disponibilidad</a></li>
+                                </ul>
+                            </li>
+
+                            <li><a href="{{ route('admin.reservas.index') }}" aria-expanded="false">
+                                <i class="flaticon-086-star"></i>
+                                <span class="nav-text">Reservas</span>
+                            </a></li>
+
+                            <li><a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                                <i class="flaticon-045-heart"></i>
+                                <span class="nav-text">Pagos</span>
+                            </a>
+                                <ul aria-expanded="false">
+                                    <li><a href="#">Historial de pagos</a></li>
+                                    <li><a href="#">Métodos de pago</a></li>
+                                </ul>
+                            </li>
+
+                            <li><a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                                <i class="flaticon-072-printer"></i>
+                                <span class="nav-text">Reportes</span>
+                            </a>
+                                <ul aria-expanded="false">
+                                    <li><a href="#">Reporte de reservas</a></li>
+                                    <li><a href="#">Reporte de ingresos</a></li>
+                                </ul>
+                            </li>
+                        @else
+                            <li><a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                                <i class="flaticon-086-star"></i>
+                                <span class="nav-text">Mi Complejo</span>
+                            </a>
+                                <ul aria-expanded="false">
+                                    <li><a href="{{ route('admin.canchas.index') }}">Canchas</a></li>
+                                    <li><a href="{{ route('admin.horarios.index') }}">Horarios</a></li>
+                                    <li><a href="{{ route('admin.bloqueos.index') }}">Disponibilidad</a></li>
+                                </ul>
+                            </li>
+
+                            <li><a href="{{ route('admin.reservas.index') }}" aria-expanded="false">
+                                <i class="flaticon-045-heart"></i>
+                                <span class="nav-text">Reservas</span>
+                            </a></li>
+
+                            <li><a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                                <i class="flaticon-072-printer"></i>
+                                <span class="nav-text">Reportes</span>
+                            </a>
+                                <ul aria-expanded="false">
+                                    <li><a href="#">Reporte de ingresos</a></li>
+                                </ul>
+                            </li>
+                        @endif
+                    @endif
+                </ul>
 
 			</div>
         </div>
         <!--**********************************
             Sidebar end
         ***********************************-->
-		
+
 		<!--**********************************
             Content body start
         ***********************************-->
         <div class="content-body">
             <!-- row -->
 			<div class="container-fluid pt-3">
-				 @yield('content')			
-				
+				 @yield('content')
+
             </div>
         </div>
         <!--**********************************
             Content body end
         ***********************************-->
-		
-		
-		
+
+
+
         <!--**********************************
             Footer start
         ***********************************-->
@@ -305,7 +293,7 @@
 		<!--**********************************
            Support ticket button start
         ***********************************-->
-		
+
         <!--**********************************
            Support ticket button end
         ***********************************-->
@@ -323,16 +311,16 @@
    <script src="/vendor/global/global.min.js"></script>
 	<script src="/vendor/chart.js/Chart.bundle.min.js"></script>
 	<script src="/vendor/jquery-nice-select/js/jquery.nice-select.min.js"></script>
-	
+
 	<!-- Apex Chart -->
 	<script src="/vendor/apexchart/apexchart.js"></script>
-	
+
 	<!-- Chart piety plugin files -->
     <script src="/vendor/peity/jquery.peity.min.js"></script>
-	
+
 	<!-- Dashboard 1 -->
 	<script src="/js/dashboard/dashboard-1.js"></script>
-	
+
 	<!-- JS for dotted map -->
     <script src="/vendor/dotted-map/js/contrib/jquery.smallipop-0.3.0.min.js"></script>
     <script src="/vendor/dotted-map/js/contrib/suntimes.js"></script>
@@ -346,11 +334,18 @@
     <!-- Datatable -->
     <script src="/vendor/datatables/js/jquery.dataTables.min.js"></script>
     <script src="/js/plugins-init/datatables.init.js"></script>
-	
-	
+
+
     <script src="/js/custom.min.js"></script>
 	<script src="/js/deznav-init.js"></script>
 	<script src="/js/demo.js"></script>
+
+    <!-- Helpers GS (SweetAlert2 + Toastr locales, Toastify por CDN) -->
+    <script src="/vendor/sweetalert2/dist/sweetalert2.min.js"></script>
+    <script src="/vendor/toastr/js/toastr.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="/pichanga/js/funciones.js"></script>
 
     @yield('script')
 </body>

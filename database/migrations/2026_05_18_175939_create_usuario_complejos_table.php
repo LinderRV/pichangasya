@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('usuario_complejos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_usuario')->references('id')->on('usuarios')->unique();
-            $table->foreignId('id_complejo')->references('id')->on('complejo_deportivos')->unique();
-            $table->enum('cargo', ['Administrador', 'Empleado'])->nullable();
+            $table->foreignId('id_usuario')->references('id')->on('usuarios');
+            $table->foreignId('id_complejo')->references('id')->on('complejo_deportivos');
+            $table->enum('cargo', ['Dueño', 'Empleado'])->nullable();
             $table->enum('estado', ['activo', 'inactivo'])->default('activo');
+
+            // Un usuario no se repite en el MISMO complejo, pero sí puede estar en varios
+            $table->unique(['id_usuario', 'id_complejo']);
 
             $table->timestamps();
         });

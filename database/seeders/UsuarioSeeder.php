@@ -39,6 +39,22 @@ class UsuarioSeeder extends Seeder
                 'telefono' => '900000004',
                 'sexo' => 'masculino',
             ],
+            [
+                'nombres' => 'Maria', 
+                'apellidos' => 'Lopez',
+                'email' => 'maria.lopez@gmail.com',
+                'password' => Hash::make('PichangasYa2026*'),
+                'telefono' => '900000005',
+                'sexo' => 'femenino',
+            ],
+             [
+                'nombres' => 'Ana', 
+                'apellidos' => 'Martinez',
+                'email' => 'ana.martinez@gmail.com',    
+                'password' => Hash::make('PichangasYa2026*'),
+                'telefono' => '900000006',
+                'sexo' => 'femenino',
+            ],
             
         ];
 
