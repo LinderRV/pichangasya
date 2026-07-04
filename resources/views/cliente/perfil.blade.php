@@ -9,20 +9,6 @@
                 <p class="text-muted mb-0 mt-2">Completa y actualiza tu información personal</p>
             </div>
             <div class="card-body">
-                @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-
-                @if (session('info'))
-                    <div class="alert alert-info alert-dismissible fade show" role="alert">
-                        <i class="bi bi-info-circle me-2"></i>{{ session('info') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-
                 @if (!$cliente->documento_identidad && !$cliente->direccion)
                     <div class="alert alert-primary border-primary" role="alert">
                         <div class="d-flex gap-2">
@@ -35,7 +21,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('cliente.actualizar') }}" method="POST" novalidate>
+                <form id="formPerfil" action="{{ route('cliente.actualizar') }}" method="POST" novalidate>
                     @csrf
 
                     <!-- Datos Personales -->
@@ -139,14 +125,15 @@
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="documento_identidad" class="form-label fw-bold">Documento de Identidad</label>
-                                <input 
-                                    type="text" 
+                                <label for="documento_identidad" class="form-label fw-bold">Documento de Identidad <span class="text-danger">*</span></label>
+                                <input
+                                    type="text"
                                     id="documento_identidad"
-                                    name="documento_identidad" 
+                                    name="documento_identidad"
                                     class="form-control @error('documento_identidad') is-invalid @enderror"
                                     value="{{ old('documento_identidad', $cliente->documento_identidad) }}"
                                     placeholder="DNI / Pasaporte"
+                                    required
                                 />
                                 @error('documento_identidad')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -173,7 +160,7 @@
                         <button type="submit" class="btn btn-success">
                             <i class="bi bi-check-lg me-2"></i>Guardar Cambios
                         </button>
-                        <a href="{{ route('dashboard') }}" class="btn btn-secondary">
+                        <a href="{{ route('cliente.perfil') }}" class="btn btn-secondary">
                             <i class="bi bi-x-lg me-2"></i>Cancelar
                         </a>
                     </div>
@@ -230,6 +217,43 @@
 
 @endsection
 
+@section('script')
+<script>
+    $(function () {
+        $.ajaxSetup({
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+        });
 
+        $('#formPerfil').on('submit', function (e) {
+            e.preventDefault();
+            let $form = $(this);
 
-
+            GS.inicioSolicitud();
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                data: $form.serialize(),
+                dataType: 'json'
+            })
+            .done(function (resp) {
+                GS.finSolicitud();
+                if (resp.status === 200) {
+                    GS.toastSuccess(resp.message);
+                    setTimeout(function () { location.reload(); }, 800);
+                } else {
+                    GS.toastError(resp.message);
+                }
+            })
+            .fail(function (xhr) {
+                GS.finSolicitud();
+                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    let primer = Object.values(xhr.responseJSON.errors)[0][0];
+                    GS.toastError(primer);
+                } else {
+                    GS.toastError('Error al actualizar el perfil.');
+                }
+            });
+        });
+    });
+</script>
+@endsection

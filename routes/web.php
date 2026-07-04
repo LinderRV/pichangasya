@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Cliente\ClienteController;
 use Illuminate\Support\Facades\Route;
 
@@ -136,10 +135,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/cliente/reservar', [ClienteReservaController::class, 'reservar'])->name('cliente.reservar');
     Route::get('/cliente/canchas-por-complejo/{id}', [ClienteReservaController::class, 'canchasPorComplejo'])->name('cliente.canchasPorComplejo');
     Route::get('/cliente/slots/{idCancha}/{fecha}', [ClienteReservaController::class, 'slots'])->name('cliente.slots');
-
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Rutas del cliente
     Route::get('/cliente/perfil', [ClienteController::class, 'perfil'])->name('cliente.perfil');

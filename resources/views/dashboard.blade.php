@@ -78,38 +78,4 @@
             </div>
         </div>
     </div>
-
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-light border-bottom">
-                    <h5 class="mb-0">Información del Usuario</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table table-sm table-borderless">
-                        <tbody>
-                            <tr>
-                                <td class="fw-bold">Nombre:</td>
-                                <td>{{ Auth::user()->nombres }} {{ Auth::user()->apellidos }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Email:</td>
-                                <td>{{ Auth::user()->email }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Teléfono:</td>
-                                <td>{{ Auth::user()->telefono ?? 'No registrado' }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Estado:</td>
-                                <td>
-                                    <span class="badge bg-success">{{ ucfirst(Auth::user()->estado) }}</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
