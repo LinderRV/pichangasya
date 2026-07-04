@@ -26,6 +26,10 @@
     .slot-time{ font-weight:900; font-size:.95rem; }
     .slot-price{ font-size:.78rem; color:rgba(17,24,39,.62); font-weight:700; }
 
+    .duracion-grid{ display:flex; flex-wrap:wrap; gap:.5rem; }
+    .duracion-btn{ border-radius:999px; border:2px solid rgba(25,135,84,.25); background:#fff; padding:.5rem 1rem; font-weight:800; font-size:.85rem; cursor:pointer; transition:all .15s; }
+    .duracion-btn:hover,.duracion-btn.selected{ border-color:var(--pya-green); background:var(--pya-green); color:#fff; }
+
     #slotsState{ min-height:100px; }
     .slots-loading{ display:flex; align-items:center; justify-content:center; gap:.6rem; color:rgba(17,24,39,.55); padding:2rem; }
 
@@ -92,6 +96,18 @@
                 <input type="date" id="fechaSeleccionada" class="form-control"
                     min="{{ date('Y-m-d') }}" value="{{ date('Y-m-d') }}"
                     style="max-width:260px;">
+            </div>
+        </div>
+
+        {{-- DURACIÓN --}}
+        <div class="detail-card p-4 mb-4">
+            <div class="section-label mb-3">¿Por cuánto tiempo?</div>
+            <div class="duracion-grid" id="duracionGrid">
+                @foreach($duraciones as $min)
+                    <button type="button" class="duracion-btn @if($min === 60) selected @endif" data-minutos="{{ $min }}">
+                        {{ $min % 60 === 0 ? intdiv($min, 60) . 'h' : intdiv($min, 60) . 'h' . ($min % 60) }}
+                    </button>
+                @endforeach
             </div>
         </div>
 
@@ -199,9 +215,11 @@
     const sesionUrl    = "{{ route('cliente.niubiz.sesion') }}";
     const csrfToken    = "{{ csrf_token() }}";
 
-    let slotSeleccionado = null;
+    let slotSeleccionado   = null;
+    let duracionMinutos    = 60;
 
     const $fechaInput   = document.getElementById('fechaSeleccionada');
+    const $duracionGrid = document.getElementById('duracionGrid');
     const $slotsState   = document.getElementById('slotsState');
     const $fechaLabel   = document.getElementById('fechaLabel');
     const $resumenSlot  = document.getElementById('resumenSlot');
@@ -223,7 +241,7 @@
         $fechaLabel.textContent = formatFecha(fecha);
         $slotsState.innerHTML = `<div class="slots-loading"><span class="spinner-border spinner-border-sm"></span> Cargando horarios...</div>`;
 
-        fetch(`${slotsUrl}/${idCancha}/${fecha}`)
+        fetch(`${slotsUrl}/${idCancha}/${fecha}?duracion=${duracionMinutos}`)
             .then(r => r.json())
             .then(res => {
                 if(!res.status || !res.data || res.data.length === 0){
@@ -344,6 +362,15 @@
     });
 
     $fechaInput.addEventListener('change', function(){ cargarSlots(this.value); });
+
+    $duracionGrid.querySelectorAll('.duracion-btn').forEach(btn => {
+        btn.addEventListener('click', function(){
+            $duracionGrid.querySelectorAll('.duracion-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            duracionMinutos = parseInt(this.dataset.minutos, 10);
+            cargarSlots($fechaInput.value);
+        });
+    });
 
     cargarSlots($fechaInput.value);
 })();

@@ -57,15 +57,21 @@ class PaginasController extends Controller
             ->findOrFail($id);
 
         $metodosPago = MetodoPago::where('estado', 'activo')->select('id', 'nombre')->get();
+        $duraciones  = DisponibilidadService::DURACIONES_PERMITIDAS;
 
-        return view('web.paginas.cancha', compact('cancha', 'metodosPago'));
+        return view('web.paginas.cancha', compact('cancha', 'metodosPago', 'duraciones'));
     }
 
-    public function slots($idCancha, $fecha)
+    public function slots(Request $request, $idCancha, $fecha)
     {
         try {
             if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha) || $fecha < date('Y-m-d')) {
                 return response()->json(Service::responseError('Fecha inválida.'));
+            }
+
+            $duracionMinutos = (int) $request->query('duracion', 60);
+            if (!DisponibilidadService::duracionValida($duracionMinutos)) {
+                return response()->json(Service::responseError('Duración de reserva no válida.'));
             }
 
             $cancha = Cancha::find($idCancha);
@@ -73,7 +79,7 @@ class PaginasController extends Controller
                 return response()->json(Service::responseError('Cancha no disponible.'));
             }
 
-            $slots = $this->disponibilidad->slotsDisponibles($cancha, $fecha);
+            $slots = $this->disponibilidad->slotsDisponibles($cancha, $fecha, $duracionMinutos);
 
             return response()->json(Service::responseSuccess('OK', $slots));
         } catch (\Exception $e) {

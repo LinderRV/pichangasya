@@ -87,12 +87,12 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Intervalo <span class="text-danger">*</span></label>
+                            <label class="form-label fw-bold">Intervalo entre horarios de inicio <span class="text-danger">*</span></label>
                             <select class="form-control" id="intervalo_minutos" name="intervalo_minutos" required>
-                                <option value="30">30 minutos</option>
-                                <option value="60" selected>60 minutos</option>
-                                <option value="90">90 minutos</option>
-                                <option value="120">120 minutos</option>
+                                <option value="30">Cada 30 minutos</option>
+                                <option value="60" selected>Cada 60 minutos</option>
+                                <option value="90">Cada 90 minutos</option>
+                                <option value="120">Cada 120 minutos</option>
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">

@@ -10,7 +10,22 @@ use App\Models\EstadoReserva;
 
 class DisponibilidadService
 {
-    public function slotsDisponibles(Cancha $cancha, string $fecha): array
+    /**
+     * Duraciones de reserva permitidas, en minutos.
+     */
+    public const DURACIONES_PERMITIDAS = [60, 90, 120, 150, 180];
+
+    public static function duracionValida(int $minutos): bool
+    {
+        return in_array($minutos, self::DURACIONES_PERMITIDAS, true);
+    }
+
+    /**
+     * Horarios de inicio disponibles para una duración de reserva dada.
+     * El "intervalo_minutos" de horario_configurados define cada cuánto
+     * puede empezar una reserva (paso), no la duración de la misma.
+     */
+    public function slotsDisponibles(Cancha $cancha, string $fecha, int $duracionMinutos = 60): array
     {
         $diaSemana = $this->diaSemanaEspanol(date('N', strtotime($fecha)));
 
@@ -31,21 +46,20 @@ class DisponibilidadService
             ->get();
 
         $slots = [];
+        $duracionHoras = $duracionMinutos / 60;
+        $total = round($cancha->precio_hora * $duracionHoras, 2);
 
         foreach ($horarios as $horario) {
-            $inicioMin   = $this->aMinutos(substr($horario->hora_inicio, 0, 5));
-            $finMin      = $this->aMinutos(substr($horario->hora_fin, 0, 5));
-            $intervalo   = (int) $horario->intervalo_minutos;
-            $slotInicio  = $inicioMin;
+            $inicioMin  = $this->aMinutos(substr($horario->hora_inicio, 0, 5));
+            $finMin     = $this->aMinutos(substr($horario->hora_fin, 0, 5));
+            $paso       = (int) $horario->intervalo_minutos;
+            $slotInicio = $inicioMin;
 
-            while ($slotInicio + $intervalo <= $finMin) {
-                $slotFin = $slotInicio + $intervalo;
+            while ($slotInicio + $duracionMinutos <= $finMin) {
+                $slotFin = $slotInicio + $duracionMinutos;
 
                 if (!$this->estaBloquedado($slotInicio, $slotFin, $bloqueos) &&
                     !$this->estaReservado($slotInicio, $slotFin, $reservasOcupadas)) {
-
-                    $duracionHoras = $intervalo / 60;
-                    $total = round($cancha->precio_hora * $duracionHoras, 2);
 
                     $slots[] = [
                         'hora_inicio' => $this->desdeMinutos($slotInicio),
@@ -55,7 +69,7 @@ class DisponibilidadService
                     ];
                 }
 
-                $slotInicio = $slotFin;
+                $slotInicio += $paso;
             }
         }
 

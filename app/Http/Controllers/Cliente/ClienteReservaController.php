@@ -47,8 +47,13 @@ class ClienteReservaController extends Controller
 
             $cancha = Cancha::findOrFail($request->id_cancha);
 
+            $duracionMinutos = (int) ((strtotime($request->hora_fin) - strtotime($request->hora_inicio)) / 60);
+            if (!DisponibilidadService::duracionValida($duracionMinutos)) {
+                return response()->json(Service::responseError('Duración de reserva no válida.'));
+            }
+
             // Verificar disponibilidad en tiempo real
-            $slots = $this->disponibilidad->slotsDisponibles($cancha, $request->fecha);
+            $slots = $this->disponibilidad->slotsDisponibles($cancha, $request->fecha, $duracionMinutos);
             $slotValido = collect($slots)->first(fn($s) =>
                 $s['hora_inicio'] === $request->hora_inicio &&
                 $s['hora_fin']    === $request->hora_fin
@@ -58,8 +63,7 @@ class ClienteReservaController extends Controller
                 return response()->json(Service::responseError('El horario ya no está disponible. Por favor elige otro.'));
             }
 
-            $duracionHoras = (strtotime($request->hora_fin) - strtotime($request->hora_inicio)) / 3600;
-            $total = round($cancha->precio_hora * $duracionHoras, 2);
+            $total = round($cancha->precio_hora * ($duracionMinutos / 60), 2);
 
             $purchaseNumber = NiubizService::generarPurchaseNumber();
 
@@ -150,7 +154,8 @@ class ClienteReservaController extends Controller
             $cancha = Cancha::findOrFail($pending['id_cancha']);
 
             // Verificar disponibilidad una última vez
-            $slots = $this->disponibilidad->slotsDisponibles($cancha, $pending['fecha']);
+            $duracionMinutos = (int) ((strtotime($pending['hora_fin']) - strtotime($pending['hora_inicio'])) / 60);
+            $slots = $this->disponibilidad->slotsDisponibles($cancha, $pending['fecha'], $duracionMinutos);
             $slotValido = collect($slots)->first(fn($s) =>
                 $s['hora_inicio'] === $pending['hora_inicio'] &&
                 $s['hora_fin']    === $pending['hora_fin']
