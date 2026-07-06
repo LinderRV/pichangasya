@@ -213,8 +213,8 @@
                                 <span class="nav-text">Pagos</span>
                             </a>
                                 <ul aria-expanded="false">
-                                    <li><a href="#">Historial de pagos</a></li>
-                                    <li><a href="#">Métodos de pago</a></li>
+                                    <li><a href="{{ route('admin.pagos.index') }}">Historial de pagos</a></li>
+                                    <li><a href="{{ route('admin.metodospago.index') }}">Métodos de pago</a></li>
                                 </ul>
                             </li>
 
@@ -223,8 +223,8 @@
                                 <span class="nav-text">Reportes</span>
                             </a>
                                 <ul aria-expanded="false">
-                                    <li><a href="#">Reporte de reservas</a></li>
-                                    <li><a href="#">Reporte de ingresos</a></li>
+                                    <li><a href="{{ route('admin.reportes.reservas.index') }}">Reporte de reservas</a></li>
+                                    <li><a href="{{ route('admin.reportes.ingresos.index') }}">Reporte de ingresos</a></li>
                                 </ul>
                             </li>
                         @else
@@ -249,7 +249,7 @@
                                 <span class="nav-text">Reportes</span>
                             </a>
                                 <ul aria-expanded="false">
-                                    <li><a href="#">Reporte de ingresos</a></li>
+                                    <li><a href="{{ route('admin.reportes.ingresos.index') }}">Reporte de ingresos</a></li>
                                 </ul>
                             </li>
                         @endif

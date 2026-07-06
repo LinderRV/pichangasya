@@ -14,6 +14,10 @@ use App\Http\Controllers\Admin\Cancha\CanchaController;
 use App\Http\Controllers\Admin\Horario\HorarioController;
 use App\Http\Controllers\Admin\Bloqueo\BloqueoController;
 use App\Http\Controllers\Admin\Reserva\AdminReservaController;
+use App\Http\Controllers\Admin\Pago\PagoController;
+use App\Http\Controllers\Admin\Pago\MetodoPagoController;
+use App\Http\Controllers\Admin\Reporte\ReporteReservaController;
+use App\Http\Controllers\Admin\Reporte\ReporteIngresoController;
 use App\Http\Controllers\Cliente\ClienteReservaController;
 
 Route::get('/', [PaginasController::class, 'inicio'])->name('home');
@@ -125,6 +129,38 @@ Route::middleware('auth')->group(function () {
         Route::get('/lista', [AdminReservaController::class, 'lista'])->name('admin.reservas.lista');
         Route::get('/obtener/{id}', [AdminReservaController::class, 'obtener'])->name('admin.reservas.obtener');
         Route::put('/cancelar/{id}', [AdminReservaController::class, 'cancelar'])->name('admin.reservas.cancelar');
+    });
+
+    // Admin / Dueño — Historial de pagos
+    Route::prefix('admin/pagos')->group(function () {
+        Route::get('/', [PagoController::class, 'index'])->name('admin.pagos.index');
+        Route::get('/lista', [PagoController::class, 'lista'])->name('admin.pagos.lista');
+        Route::get('/obtener/{id}', [PagoController::class, 'obtener'])->name('admin.pagos.obtener');
+    });
+
+    // Admin — Métodos de pago (catálogo global)
+    Route::prefix('admin/metodos-pago')->group(function () {
+        Route::get('/', [MetodoPagoController::class, 'index'])->name('admin.metodospago.index');
+        Route::get('/lista', [MetodoPagoController::class, 'lista'])->name('admin.metodospago.lista');
+        Route::post('/guardar', [MetodoPagoController::class, 'guardar'])->name('admin.metodospago.guardar');
+        Route::get('/obtener/{id}', [MetodoPagoController::class, 'obtener'])->name('admin.metodospago.obtener');
+        Route::put('/actualizar/{id}', [MetodoPagoController::class, 'actualizar'])->name('admin.metodospago.actualizar');
+        Route::delete('/eliminar/{id}', [MetodoPagoController::class, 'eliminar'])->name('admin.metodospago.eliminar');
+    });
+
+    // Admin / Dueño — Reportes
+    Route::prefix('admin/reportes')->group(function () {
+        Route::prefix('reservas')->group(function () {
+            Route::get('/', [ReporteReservaController::class, 'index'])->name('admin.reportes.reservas.index');
+            Route::get('/lista', [ReporteReservaController::class, 'lista'])->name('admin.reportes.reservas.lista');
+            Route::get('/exportar', [ReporteReservaController::class, 'exportar'])->name('admin.reportes.reservas.exportar');
+        });
+
+        Route::prefix('ingresos')->group(function () {
+            Route::get('/', [ReporteIngresoController::class, 'index'])->name('admin.reportes.ingresos.index');
+            Route::get('/lista', [ReporteIngresoController::class, 'lista'])->name('admin.reportes.ingresos.lista');
+            Route::get('/exportar', [ReporteIngresoController::class, 'exportar'])->name('admin.reportes.ingresos.exportar');
+        });
     });
 
     // Cliente — Niubiz

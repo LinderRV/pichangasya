@@ -60,20 +60,20 @@
         <div class="col-12">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Total de Complejos</h3>
-                    <div class="number">0</div>
-                </div>
-                <div class="stat-card">
                     <h3>Reservas Hoy</h3>
-                    <div class="number">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Clientes Activos</h3>
-                    <div class="number">0</div>
+                    <div class="number">{{ $reservasHoy }}</div>
                 </div>
                 <div class="stat-card">
                     <h3>Ingresos del Mes</h3>
-                    <div class="number">S/.0</div>
+                    <div class="number">S/. {{ number_format($ingresosMes, 2) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Nuevos Clientes (Mes)</h3>
+                    <div class="number">{{ $nuevosClientesMes }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Tasa de Cancelación (Mes)</h3>
+                    <div class="number">{{ $tasaCancelacionMes }}%</div>
                 </div>
             </div>
         </div>
