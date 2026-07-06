@@ -14,6 +14,6 @@ class DashboardController extends Controller
             return redirect()->route('cliente.perfil');
         }
 
-        return view('dashboard');
+        return view('admin.dashboard');
     }
 }

@@ -50,7 +50,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="welcome-card">
-                <h1>¡Bienvenido, {{ Auth::user()->nombres }}!</h1>
+                <h1>Bienvenido, {{ Auth::user()->nombres }}</h1>
                 <p>Acceso al panel de control de PichangasYa</p>
             </div>
         </div>
