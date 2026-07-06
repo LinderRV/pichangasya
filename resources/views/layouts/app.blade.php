@@ -27,8 +27,6 @@
 	<link rel="icon" type="image/png" href="/images/favicon.png">
 
 	<link href="/vendor/jquery-nice-select/css/nice-select.css" rel="stylesheet">
-	<link rel="stylesheet" href="/vendor/dotted-map/css/contrib/jquery.smallipop-0.3.0.min.css" type="text/css" media="all">
-
     <!-- Datatable -->
     <link href="/vendor/datatables/css/jquery.dataTables.min.css" rel="stylesheet">
 	<!-- Style css -->
@@ -126,7 +124,7 @@
 										<span class="fs-18 font-w500 text-end">{{ Auth::user()->nombres }}</span>
 										<small class="text-end fs-14 font-w400">{{ Auth::user()->email }}</small>
 									</div>
-                                    <img src="images/profile/pic1.jpg" width="20" alt="">
+                                    <img src="/images/perfil/perfil.png" width="20" alt="">
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     @if(Auth::user()->esCliente())
@@ -311,31 +309,11 @@
     ***********************************-->
     <!-- Required vendors -->
    <script src="/vendor/global/global.min.js"></script>
-	<script src="/vendor/chart.js/Chart.bundle.min.js"></script>
 	<script src="/vendor/jquery-nice-select/js/jquery.nice-select.min.js"></script>
-
-	<!-- Apex Chart -->
-	<script src="/vendor/apexchart/apexchart.js"></script>
-
-	<!-- Chart piety plugin files -->
-    <script src="/vendor/peity/jquery.peity.min.js"></script>
-
-	<!-- Dashboard 1 -->
-	<script src="/js/dashboard/dashboard-1.js"></script>
-
-	<!-- JS for dotted map -->
-    <script src="/vendor/dotted-map/js/contrib/jquery.smallipop-0.3.0.min.js"></script>
-    <script src="/vendor/dotted-map/js/contrib/suntimes.js"></script>
-    <script src="/vendor/dotted-map/js/contrib/color-0.4.1.js"></script>
-
-	<script src="/vendor/dotted-map/js/world.js"></script>
-    <script src="/vendor/dotted-map/js/smallimap.js"></script>
-    <script src="/js/dashboard/dotted-map-init.js"></script>
 
 
     <!-- Datatable -->
     <script src="/vendor/datatables/js/jquery.dataTables.min.js"></script>
-    <script src="/js/plugins-init/datatables.init.js"></script>
 
 
     <script src="/js/custom.min.js"></script>
