@@ -112,7 +112,7 @@
 										<span class="fs-18 font-w500 text-end">{{ Auth::user()->nombres }}</span>
 										<small class="text-end fs-14 font-w400">{{ Auth::user()->email }}</small>
 									</div>
-                                    <img src="/images/perfil/perfil.png" width="20" alt="">
+                                    <img src="/images/pic1.jpg" width="20" alt="">
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     @if(Auth::user()->esCliente())
