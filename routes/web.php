@@ -136,6 +136,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [PagoController::class, 'index'])->name('admin.pagos.index');
         Route::get('/lista', [PagoController::class, 'lista'])->name('admin.pagos.lista');
         Route::get('/obtener/{id}', [PagoController::class, 'obtener'])->name('admin.pagos.obtener');
+        Route::get('/pdf/{id}', [PagoController::class, 'pdf'])->name('admin.pagos.pdf');
     });
 
     // Admin — Métodos de pago (catálogo global)
@@ -166,6 +167,7 @@ Route::middleware('auth')->group(function () {
     // Cliente — Niubiz
     Route::post('/cliente/niubiz/sesion', [ClienteReservaController::class, 'niubizSesion'])->name('cliente.niubiz.sesion');
     Route::get('/cliente/reservas/lista', [ClienteReservaController::class, 'lista'])->name('cliente.reservas.lista');
+    Route::get('/cliente/reservas/{id}/comprobante', [ClienteReservaController::class, 'comprobantePdf'])->name('cliente.reservas.comprobante');
 
     // Legacy
     Route::get('/cliente/reservar', [ClienteReservaController::class, 'reservar'])->name('cliente.reservar');

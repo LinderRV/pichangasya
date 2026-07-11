@@ -8,6 +8,7 @@ use App\Models\Pago;
 use App\Models\UsuarioComplejo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 
 class PagoController extends Controller
@@ -92,5 +93,35 @@ class PagoController extends Controller
         } catch (Exception $e) {
             return response()->json(Service::responseError('Error al obtener el pago.'));
         }
+    }
+
+    public function pdf($id)
+    {
+        $pago = Pago::with([
+            'reserva.cliente.usuario',
+            'reserva.cancha.complejo',
+            'metodoPago',
+        ])->findOrFail($id);
+
+        if (!Auth::user()->esSuperAdmin()) {
+            $idComplejo = UsuarioComplejo::where('id_usuario', Auth::id())->value('id_complejo');
+            if (optional(optional($pago->reserva)->cancha)->id_complejo !== $idComplejo) {
+                abort(403);
+            }
+        }
+
+        $reserva = $pago->reserva;
+        $usuario = optional($reserva->cliente)->usuario;
+
+        $pdf = Pdf::loadView('pdf.comprobante_pago', [
+            'pago'             => $pago,
+            'reserva'          => $reserva,
+            'complejo'         => optional($reserva->cancha)->complejo,
+            'clienteNombre'    => trim(($usuario->nombres ?? '') . ' ' . ($usuario->apellidos ?? '')) ?: '-',
+            'clienteDocumento' => optional($reserva->cliente)->documento_identidad,
+            'clienteEmail'     => $usuario->email ?? null,
+        ])->setPaper('a4');
+
+        return $pdf->stream('comprobante-' . $pago->codigo_operacion . '.pdf');
     }
 }

@@ -96,7 +96,10 @@ $(document).ready(function () {
                 render: (data, type, row) => `
                     <button class="btn btn-info shadow btn-xs sharp btnVer" data-id="${row.id}">
                         <i class="fa fa-eye"></i>
-                    </button>`
+                    </button>
+                    <a href="{{ url('admin/pagos/pdf') }}/${row.id}" target="_blank" class="btn btn-success shadow btn-xs sharp" title="Comprobante de pago">
+                        <i class="fa fa-file-pdf"></i>
+                    </a>`
             }
         ]
     });

@@ -36,6 +36,7 @@
                                 <th>Pago</th>
                                 <th>Estado</th>
                                 <th>Contacto</th>
+                                <th>Comprobante</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -93,6 +94,17 @@ $(document).ready(function () {
                     let num = d.replace(/\D/g,'');
                     return `<a href="https://wa.me/51${num}" target="_blank" class="btn btn-success btn-xs shadow">
                                 <i class="fa fa-whatsapp"></i>
+                            </a>`;
+                }
+            },
+            {
+                data: "id",
+                orderable: false,
+                searchable: false,
+                render: function (id, type, row) {
+                    if (!row.tiene_pago) return '-';
+                    return `<a href="{{ url('cliente/reservas') }}/${id}/comprobante" target="_blank" class="btn btn-success btn-xs shadow" title="Comprobante de pago">
+                                <i class="fa fa-file-pdf"></i>
                             </a>`;
                 }
             }

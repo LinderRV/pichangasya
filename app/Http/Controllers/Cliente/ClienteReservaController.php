@@ -17,6 +17,7 @@ use App\Services\NiubizService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 
 class ClienteReservaController extends Controller
@@ -238,6 +239,7 @@ class ClienteReservaController extends Controller
             ->orderByDesc('fecha_reserva')
             ->get()
             ->map(fn($r) => [
+                'id'                => $r->id,
                 'codigo'            => $r->codigo_reserva,
                 'cancha'            => optional($r->cancha)->nombre ?? '-',
                 'complejo'          => optional(optional($r->cancha)->complejo)->nombre ?? '-',
@@ -248,12 +250,47 @@ class ClienteReservaController extends Controller
                 'total'             => 'S/ ' . number_format($r->total, 2),
                 'metodo_pago'       => optional(optional($r->pago)->metodoPago)->nombre ?? '-',
                 'estado'            => optional($r->estadoReserva)->nombre ?? '-',
+                'tiene_pago'        => (bool) $r->pago,
             ]);
 
             return response()->json(Service::responseSuccess('OK', $reservas));
         } catch (Exception $e) {
             return response()->json(Service::responseError('Error al obtener reservas.'));
         }
+    }
+
+    // ─── Comprobante de pago (PDF) ────────────────────────────────────────────
+
+    public function comprobantePdf($idReserva)
+    {
+        $cliente = Auth::user()->cliente;
+
+        $reserva = Reserva::with([
+            'cliente.usuario',
+            'cancha.complejo',
+            'pago.metodoPago',
+        ])->findOrFail($idReserva);
+
+        if (!$cliente || $reserva->id_cliente !== $cliente->id) {
+            abort(403);
+        }
+
+        if (!$reserva->pago) {
+            abort(404);
+        }
+
+        $usuario = optional($reserva->cliente)->usuario;
+
+        $pdf = Pdf::loadView('pdf.comprobante_pago', [
+            'pago'             => $reserva->pago,
+            'reserva'          => $reserva,
+            'complejo'         => optional($reserva->cancha)->complejo,
+            'clienteNombre'    => trim(($usuario->nombres ?? '') . ' ' . ($usuario->apellidos ?? '')) ?: '-',
+            'clienteDocumento' => optional($reserva->cliente)->documento_identidad,
+            'clienteEmail'     => $usuario->email ?? null,
+        ])->setPaper('a4');
+
+        return $pdf->stream('comprobante-' . $reserva->pago->codigo_operacion . '.pdf');
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
