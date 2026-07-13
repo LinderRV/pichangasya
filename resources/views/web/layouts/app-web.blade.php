@@ -113,8 +113,18 @@
                     </ul>
 
                     <div class="d-flex align-items-lg-center gap-2 ms-lg-3 mt-3 mt-lg-0">
-                        <a class="btn btn-outline-secondary btn-outline-soft btn-pill" href="/login">Iniciar sesión</a>
-                        <a class="btn btn-success btn-pill" href="/register">Registrarse</a>
+                        @guest
+                            <a class="btn btn-outline-secondary btn-outline-soft btn-pill" href="/login">Iniciar sesión</a>
+                            <a class="btn btn-success btn-pill" href="/register">Registrarse</a>
+                        @else
+                            <a class="btn btn-outline-secondary btn-outline-soft btn-pill" href="{{ Auth::user()->esCliente() ? route('cliente.reservas') : route('dashboard') }}">
+                                <i class="bi bi-person-circle me-1"></i>Mi cuenta
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-pill">Cerrar sesión</button>
+                            </form>
+                        @endguest
                     </div>
                 </div>
             </div>

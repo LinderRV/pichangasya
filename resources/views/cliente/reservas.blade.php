@@ -93,7 +93,7 @@ $(document).ready(function () {
                     if (!d) return '-';
                     let num = d.replace(/\D/g,'');
                     return `<a href="https://wa.me/51${num}" target="_blank" class="btn btn-success btn-xs shadow">
-                                <i class="fa fa-whatsapp"></i>
+                                <i class="fab fa-whatsapp"></i>
                             </a>`;
                 }
             },

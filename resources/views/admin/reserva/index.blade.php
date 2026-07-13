@@ -190,7 +190,7 @@ $(document).ready(function () {
                     </div>
                 </div>
                 ${r.comprobante_url ? `<hr><p><strong>Comprobante:</strong><br><img src="/${r.comprobante_url}" class="img-fluid rounded border" style="max-height:200px;"></p>` : ''}
-                ${r.telefono_complejo ? `<hr><a href="https://wa.me/51${r.telefono_complejo.replace(/\D/g,'')}" target="_blank" class="btn btn-success btn-sm"><i class="fa fa-whatsapp me-1"></i>WhatsApp del complejo</a>` : ''}
+                ${r.telefono_complejo ? `<hr><a href="https://wa.me/51${r.telefono_complejo.replace(/\D/g,'')}" target="_blank" class="btn btn-success btn-sm"><i class="fab fa-whatsapp me-1"></i>WhatsApp del complejo</a>` : ''}
             `;
             $('#cuerpoDetalle').html(html);
             $('#cancelarId').val(r.id);
