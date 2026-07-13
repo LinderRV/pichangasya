@@ -79,7 +79,7 @@ class NiubizService
                         'MDD77' => 0,
                     ],
                 ],
-                'captureType' => 'manual',
+                'captureType' => 'automatic',
                 'channel'     => 'web',
                 'countable'   => true,
                 'order'       => [
