@@ -59,7 +59,13 @@ class NiubizService
             throw new Exception('Error al crear sesión Niubiz (' . $response->status() . '): ' . $response->body());
         }
 
-        return trim($response->body());
+        $sessionKey = $response->json('sessionKey');
+
+        if (!$sessionKey) {
+            throw new Exception('Respuesta de Niubiz sin sessionKey: ' . $response->body());
+        }
+
+        return $sessionKey;
     }
 
     public function autorizar(string $transactionToken, string $purchaseNumber, float $amount, string $clientIp, string $email): array

@@ -68,7 +68,8 @@ class ClienteReservaController extends Controller
 
             $purchaseNumber = NiubizService::generarPurchaseNumber();
 
-            $sessionKey = $this->niubiz->crearSesion(
+            $simulado   = (bool) config('niubiz.simulado');
+            $sessionKey = $simulado ? null : $this->niubiz->crearSesion(
                 $total,
                 $request->ip(),
                 $usuario->email
@@ -97,6 +98,7 @@ class ClienteReservaController extends Controller
                 'amount'          => number_format($total, 2, '.', ''),
                 'merchant_id'     => config('niubiz.merchant_id'),
                 'action_url'      => route('cliente.niubiz.confirmar'),
+                'simulado'        => $simulado,
             ]));
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(Service::responseError($e->validator->errors()->first()));
@@ -109,6 +111,10 @@ class ClienteReservaController extends Controller
 
     public function niubizConfirmar(Request $request)
     {
+        if (config('niubiz.simulado')) {
+            return $this->niubizConfirmarSimulado($request);
+        }
+
         $transactionToken = $request->input('transactionToken');
 
         if (!$transactionToken) {
@@ -152,65 +158,7 @@ class ClienteReservaController extends Controller
                     ->with('error', 'Pago rechazado: ' . $errorMsg);
             }
 
-            $cancha = Cancha::findOrFail($pending['id_cancha']);
-            $duracionMinutos = (int) ((strtotime($pending['hora_fin']) - strtotime($pending['hora_inicio'])) / 60);
-
-            $metodoPago = MetodoPago::firstOrCreate(
-                ['nombre' => 'Niubiz'],
-                ['estado' => 'activo']
-            );
-
-            // Bloquea la cancha para que dos pagos concurrentes por el mismo
-            // horario no pasen ambos la verificación de disponibilidad.
-            $reserva = DB::transaction(function () use ($pending, $cancha, $duracionMinutos, $transactionToken, $codigoAutorizacion, $metodoPago) {
-                Cancha::where('id', $cancha->id)->lockForUpdate()->first();
-
-                $slots = $this->disponibilidad->slotsDisponibles($cancha, $pending['fecha'], $duracionMinutos);
-                $slotValido = collect($slots)->first(fn($s) =>
-                    $s['hora_inicio'] === $pending['hora_inicio'] &&
-                    $s['hora_fin']    === $pending['hora_fin']
-                );
-
-                if (!$slotValido) {
-                    return null;
-                }
-
-                $ahora = now();
-
-                $reserva = Reserva::create([
-                    'codigo_reserva'    => $this->generarCodigo(),
-                    'id_cliente'        => $pending['id_cliente'],
-                    'id_cancha'         => $cancha->id,
-                    'id_estado_reserva' => EstadoReserva::CONFIRMADA,
-                    'fecha_reserva'     => $pending['fecha'],
-                    'hora_inicio'       => $pending['hora_inicio'],
-                    'hora_fin'          => $pending['hora_fin'],
-                    'precio_hora'       => $pending['precio_hora'],
-                    'subtotal'          => $pending['total'],
-                    'total'             => $pending['total'],
-                    'confirmado_at'     => $ahora,
-                ]);
-
-                Pago::create([
-                    'id_reserva'       => $reserva->id,
-                    'id_metodo_pago'   => $metodoPago->id,
-                    'codigo_operacion' => $pending['purchase_number'] . '-' . $codigoAutorizacion,
-                    'monto'            => $pending['total'],
-                    'comprobante_url'  => null,
-                    'estado'           => 'confirmado',
-                    'fecha_pago'       => $ahora,
-                ]);
-
-                HistorialEstadoReserva::create([
-                    'id_reserva'        => $reserva->id,
-                    'id_estado_reserva' => EstadoReserva::CONFIRMADA,
-                    'id_usuario'        => $pending['id_usuario'],
-                    'fecha_cambio'      => $ahora,
-                    'observacion'       => 'Reserva confirmada vía Niubiz. Auth: ' . $codigoAutorizacion,
-                ]);
-
-                return $reserva;
-            });
+            $reserva = $this->completarReserva($pending, $codigoAutorizacion);
 
             if (!$reserva) {
                 return redirect()
@@ -227,6 +175,114 @@ class ClienteReservaController extends Controller
                 ->route('web.paginas.cancha', $pending['id_cancha'] ?? 0)
                 ->with('error', 'Error al confirmar la reserva: ' . $e->getMessage());
         }
+    }
+
+    // ─── NIUBIZ: Confirmar pago SIMULADO (sin llamar a la API real) ───────────
+
+    private function niubizConfirmarSimulado(Request $request)
+    {
+        $pending = session('niubiz_pending');
+
+        if (!$pending || now()->timestamp > $pending['expires_at']) {
+            session()->forget('niubiz_pending');
+            return response()->json(Service::responseError('La sesión de pago expiró. Intenta de nuevo.'));
+        }
+
+        $numeroTarjeta = preg_replace('/\D+/', '', (string) $request->input('numero_tarjeta'));
+        $nombreTitular = trim((string) $request->input('nombre_titular'));
+        $vencimiento   = trim((string) $request->input('vencimiento'));
+        $cvv           = trim((string) $request->input('cvv'));
+
+        if ($nombreTitular === '') {
+            return response()->json(Service::responseError('Ingresa el nombre del titular.'));
+        }
+
+        $tarjetasPrueba = ['5031755734530604', '4009175332806176'];
+
+        if (!in_array($numeroTarjeta, $tarjetasPrueba, true) || $vencimiento !== '11/30' || $cvv !== '123') {
+            return response()->json(Service::responseError('Tarjeta rechazada. Verifica los datos e intenta de nuevo.'));
+        }
+
+        try {
+            $reserva = $this->completarReserva($pending, 'SIM-' . strtoupper(Str::random(8)));
+        } catch (Exception $e) {
+            return response()->json(Service::responseError('No se pudo confirmar la reserva. Intenta de nuevo.'));
+        }
+
+        if (!$reserva) {
+            return response()->json(Service::responseError('El horario fue ocupado mientras realizabas el pago.'));
+        }
+
+        session()->forget('niubiz_pending');
+
+        return response()->json(Service::responseSuccess('OK', [
+            'redirect' => route('cliente.reservas'),
+        ]));
+    }
+
+    // ─── Crea Reserva + Pago + Historial dentro de una transacción bloqueada ──
+
+    private function completarReserva(array $pending, string $codigoAutorizacion): ?Reserva
+    {
+        $cancha = Cancha::findOrFail($pending['id_cancha']);
+        $duracionMinutos = (int) ((strtotime($pending['hora_fin']) - strtotime($pending['hora_inicio'])) / 60);
+
+        $metodoPago = MetodoPago::firstOrCreate(
+            ['nombre' => 'Niubiz'],
+            ['estado' => 'activo']
+        );
+
+        // Bloquea la cancha para que dos pagos concurrentes por el mismo
+        // horario no pasen ambos la verificación de disponibilidad.
+        return DB::transaction(function () use ($pending, $cancha, $duracionMinutos, $codigoAutorizacion, $metodoPago) {
+            Cancha::where('id', $cancha->id)->lockForUpdate()->first();
+
+            $slots = $this->disponibilidad->slotsDisponibles($cancha, $pending['fecha'], $duracionMinutos);
+            $slotValido = collect($slots)->first(fn($s) =>
+                $s['hora_inicio'] === $pending['hora_inicio'] &&
+                $s['hora_fin']    === $pending['hora_fin']
+            );
+
+            if (!$slotValido) {
+                return null;
+            }
+
+            $ahora = now();
+
+            $reserva = Reserva::create([
+                'codigo_reserva'    => $this->generarCodigo(),
+                'id_cliente'        => $pending['id_cliente'],
+                'id_cancha'         => $cancha->id,
+                'id_estado_reserva' => EstadoReserva::CONFIRMADA,
+                'fecha_reserva'     => $pending['fecha'],
+                'hora_inicio'       => $pending['hora_inicio'],
+                'hora_fin'          => $pending['hora_fin'],
+                'precio_hora'       => $pending['precio_hora'],
+                'subtotal'          => $pending['total'],
+                'total'             => $pending['total'],
+                'confirmado_at'     => $ahora,
+            ]);
+
+            Pago::create([
+                'id_reserva'       => $reserva->id,
+                'id_metodo_pago'   => $metodoPago->id,
+                'codigo_operacion' => $pending['purchase_number'] . '-' . $codigoAutorizacion,
+                'monto'            => $pending['total'],
+                'comprobante_url'  => null,
+                'estado'           => 'confirmado',
+                'fecha_pago'       => $ahora,
+            ]);
+
+            HistorialEstadoReserva::create([
+                'id_reserva'        => $reserva->id,
+                'id_estado_reserva' => EstadoReserva::CONFIRMADA,
+                'id_usuario'        => $pending['id_usuario'],
+                'fecha_cambio'      => $ahora,
+                'observacion'       => 'Reserva confirmada vía Niubiz. Auth: ' . $codigoAutorizacion,
+            ]);
+
+            return $reserva;
+        });
     }
 
     // ─── LISTA DE RESERVAS DEL CLIENTE ────────────────────────────────────────
