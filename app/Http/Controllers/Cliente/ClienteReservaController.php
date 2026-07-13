@@ -153,27 +153,28 @@ class ClienteReservaController extends Controller
             }
 
             $cancha = Cancha::findOrFail($pending['id_cancha']);
-
-            // Verificar disponibilidad una última vez
             $duracionMinutos = (int) ((strtotime($pending['hora_fin']) - strtotime($pending['hora_inicio'])) / 60);
-            $slots = $this->disponibilidad->slotsDisponibles($cancha, $pending['fecha'], $duracionMinutos);
-            $slotValido = collect($slots)->first(fn($s) =>
-                $s['hora_inicio'] === $pending['hora_inicio'] &&
-                $s['hora_fin']    === $pending['hora_fin']
-            );
-
-            if (!$slotValido) {
-                return redirect()
-                    ->route('web.paginas.cancha', $pending['id_cancha'])
-                    ->with('error', 'El horario fue ocupado mientras realizabas el pago. Contáctanos para el reembolso.');
-            }
 
             $metodoPago = MetodoPago::firstOrCreate(
                 ['nombre' => 'Niubiz'],
                 ['estado' => 'activo']
             );
 
-            DB::transaction(function () use ($pending, $cancha, $transactionToken, $codigoAutorizacion, $metodoPago) {
+            // Bloquea la cancha para que dos pagos concurrentes por el mismo
+            // horario no pasen ambos la verificación de disponibilidad.
+            $reserva = DB::transaction(function () use ($pending, $cancha, $duracionMinutos, $transactionToken, $codigoAutorizacion, $metodoPago) {
+                Cancha::where('id', $cancha->id)->lockForUpdate()->first();
+
+                $slots = $this->disponibilidad->slotsDisponibles($cancha, $pending['fecha'], $duracionMinutos);
+                $slotValido = collect($slots)->first(fn($s) =>
+                    $s['hora_inicio'] === $pending['hora_inicio'] &&
+                    $s['hora_fin']    === $pending['hora_fin']
+                );
+
+                if (!$slotValido) {
+                    return null;
+                }
+
                 $ahora = now();
 
                 $reserva = Reserva::create([
@@ -207,7 +208,15 @@ class ClienteReservaController extends Controller
                     'fecha_cambio'      => $ahora,
                     'observacion'       => 'Reserva confirmada vía Niubiz. Auth: ' . $codigoAutorizacion,
                 ]);
+
+                return $reserva;
             });
+
+            if (!$reserva) {
+                return redirect()
+                    ->route('web.paginas.cancha', $pending['id_cancha'])
+                    ->with('error', 'El horario fue ocupado mientras realizabas el pago. Contáctanos para el reembolso.');
+            }
 
             session()->forget('niubiz_pending');
 

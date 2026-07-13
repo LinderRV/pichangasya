@@ -37,10 +37,11 @@ Route::prefix('web')
 
 
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'role:1,2'])->name('dashboard');
 
 
-Route::middleware('auth')->group(function () {
+// Super Admin — módulos globales (usuarios, roles, complejos, métodos de pago)
+Route::middleware(['auth', 'role:1'])->group(function () {
 
     Route::controller(UsuarioController::class)->group(function () {
         Route::prefix('admin')->group(function () {
@@ -52,9 +53,9 @@ Route::middleware('auth')->group(function () {
                 Route::put('/actualizar/{id}', [UsuarioController::class, 'actualizar'])->name('admin.usuarios.actualizar');
                 Route::delete('/eliminar/{id}', [UsuarioController::class, 'eliminar'])->name('admin.usuarios.eliminar');
             });
-            
+
         });
-        
+
     });
 
     Route::controller(RolController::class)->group(function () {
@@ -93,8 +94,19 @@ Route::middleware('auth')->group(function () {
         Route::delete('/asignacion/eliminar/{id}', [AsignacionController::class, 'eliminar'])->name('admin.complejos.asignacion.eliminar');
     });
 
+    // Admin — Métodos de pago (catálogo global)
+    Route::prefix('admin/metodos-pago')->group(function () {
+        Route::get('/', [MetodoPagoController::class, 'index'])->name('admin.metodospago.index');
+        Route::get('/lista', [MetodoPagoController::class, 'lista'])->name('admin.metodospago.lista');
+        Route::post('/guardar', [MetodoPagoController::class, 'guardar'])->name('admin.metodospago.guardar');
+        Route::get('/obtener/{id}', [MetodoPagoController::class, 'obtener'])->name('admin.metodospago.obtener');
+        Route::put('/actualizar/{id}', [MetodoPagoController::class, 'actualizar'])->name('admin.metodospago.actualizar');
+        Route::delete('/eliminar/{id}', [MetodoPagoController::class, 'eliminar'])->name('admin.metodospago.eliminar');
+    });
+});
 
-
+// Super Admin y Dueño (Usuario Interno) — módulos filtrados por complejo
+Route::middleware(['auth', 'role:1,2'])->group(function () {
 
     Route::prefix('admin/canchas')->group(function () {
         Route::get('/', [CanchaController::class, 'index'])->name('admin.canchas.index');
@@ -139,16 +151,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/pdf/{id}', [PagoController::class, 'pdf'])->name('admin.pagos.pdf');
     });
 
-    // Admin — Métodos de pago (catálogo global)
-    Route::prefix('admin/metodos-pago')->group(function () {
-        Route::get('/', [MetodoPagoController::class, 'index'])->name('admin.metodospago.index');
-        Route::get('/lista', [MetodoPagoController::class, 'lista'])->name('admin.metodospago.lista');
-        Route::post('/guardar', [MetodoPagoController::class, 'guardar'])->name('admin.metodospago.guardar');
-        Route::get('/obtener/{id}', [MetodoPagoController::class, 'obtener'])->name('admin.metodospago.obtener');
-        Route::put('/actualizar/{id}', [MetodoPagoController::class, 'actualizar'])->name('admin.metodospago.actualizar');
-        Route::delete('/eliminar/{id}', [MetodoPagoController::class, 'eliminar'])->name('admin.metodospago.eliminar');
-    });
-
     // Admin / Dueño — Reportes
     Route::prefix('admin/reportes')->group(function () {
         Route::prefix('reservas')->group(function () {
@@ -163,8 +165,10 @@ Route::middleware('auth')->group(function () {
             Route::get('/exportar', [ReporteIngresoController::class, 'exportar'])->name('admin.reportes.ingresos.exportar');
         });
     });
+});
 
-    // Cliente — Niubiz
+// Cliente — reservas y pagos propios
+Route::middleware(['auth', 'role:3'])->group(function () {
     Route::post('/cliente/niubiz/sesion', [ClienteReservaController::class, 'niubizSesion'])->name('cliente.niubiz.sesion');
     Route::get('/cliente/reservas/lista', [ClienteReservaController::class, 'lista'])->name('cliente.reservas.lista');
     Route::get('/cliente/reservas/{id}/comprobante', [ClienteReservaController::class, 'comprobantePdf'])->name('cliente.reservas.comprobante');
@@ -182,7 +186,7 @@ Route::middleware('auth')->group(function () {
 
 // Niubiz confirmar — recibe browser POST de Niubiz (CSRF exempt en bootstrap/app.php)
 Route::post('/cliente/niubiz/confirmar', [ClienteReservaController::class, 'niubizConfirmar'])
-    ->middleware('auth')
+    ->middleware(['auth', 'role:3'])
     ->name('cliente.niubiz.confirmar');
 
 require __DIR__.'/auth.php';
