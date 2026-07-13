@@ -43,6 +43,42 @@
             font-weight: 900;
             color: #198754;
         }
+        .ranking-card {
+            background: white;
+            padding: 20px;
+            border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+        }
+        .ranking-card h3 {
+            font-size: 1rem;
+            color: #333;
+            margin: 0 0 15px 0;
+            font-weight: 700;
+        }
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+        .ranking-item .etiqueta {
+            color: #444;
+            font-weight: 600;
+        }
+        .ranking-item .monto {
+            color: #198754;
+            font-weight: 700;
+        }
+        .ranking-empty {
+            color: #999;
+            font-size: 0.9rem;
+            margin: 0;
+        }
     </style>
 @endsection
 
@@ -68,13 +104,21 @@
                     <div class="number">S/. {{ number_format($ingresosMes, 2) }}</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Nuevos Clientes (Mes)</h3>
-                    <div class="number">{{ $nuevosClientesMes }}</div>
+                    <h3>Tasa de Ocupación (Mes)</h3>
+                    <div class="number">{{ $tasaOcupacionMes }}%</div>
                 </div>
-                <div class="stat-card">
-                    <h3>Tasa de Cancelación (Mes)</h3>
-                    <div class="number">{{ $tasaCancelacionMes }}%</div>
-                </div>
+            </div>
+
+            <div class="ranking-card">
+                <h3>{{ $rankingTitulo }}</h3>
+                @forelse ($rankingIngresos as $item)
+                    <div class="ranking-item">
+                        <span class="etiqueta">{{ $item->etiqueta }}</span>
+                        <span class="monto">S/. {{ number_format($item->total, 2) }}</span>
+                    </div>
+                @empty
+                    <p class="ranking-empty">Aún no hay ingresos registrados este mes.</p>
+                @endforelse
             </div>
         </div>
     </div>
