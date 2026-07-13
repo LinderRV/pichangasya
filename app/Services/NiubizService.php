@@ -37,7 +37,7 @@ class NiubizService
     {
         $token = $this->accessToken();
 
-        // Niubiz NO usa "Bearer", usa el token directo en Authorization
+        // Niubiz NO "Bearer",  token directo en Authorization
         $response = Http::withHeaders(['Authorization' => $token])
             ->withoutVerifying()
             ->post("{$this->apiUrl}/api.ecommerce/v2/ecommerce/token/session/{$this->merchantId}", [

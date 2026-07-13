@@ -39,7 +39,7 @@
 </head>
 <body>
 
-    <!-- Overlay de carga para AJAX (GS.inicioSolicitud / GS.finSolicitud) -->
+    <!-- Overlay (GS.inicioSolicitud / GS.finSolicitud) -->
     <div id="divLoading" style="display:none; position:fixed; inset:0; z-index:1080; background:rgba(11,18,32,.45); align-items:center; justify-content:center;">
         <div class="spinner-border text-light" role="status" style="width:3rem; height:3rem;">
             <span class="visually-hidden">Cargando...</span>
@@ -308,7 +308,7 @@
 	<script src="/js/deznav-init.js"></script>
 	<script src="/js/demo.js"></script>
 
-    <!-- Helpers GS (SweetAlert2 + Toastr locales, Toastify por CDN) -->
+    <!-- Helpers GS (SweetAlert2 + Toastr locales, Toastify  CDN) -->
     <script src="/vendor/sweetalert2/dist/sweetalert2.min.js"></script>
     <script src="/vendor/toastr/js/toastr.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">

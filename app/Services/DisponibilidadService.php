@@ -20,11 +20,7 @@ class DisponibilidadService
         return in_array($minutos, self::DURACIONES_PERMITIDAS, true);
     }
 
-    /**
-     * Horarios de inicio disponibles para una duración de reserva dada.
-     * El "intervalo_minutos" de horario_configurados define cada cuánto
-     * puede empezar una reserva (paso), no la duración de la misma.
-     */
+  
     public function slotsDisponibles(Cancha $cancha, string $fecha, int $duracionMinutos = 60, ?int $excluirReservaId = null): array
     {
         $diaSemana = $this->diaSemanaEspanol(date('N', strtotime($fecha)));
