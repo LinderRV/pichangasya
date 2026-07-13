@@ -25,7 +25,7 @@ class DisponibilidadService
      * El "intervalo_minutos" de horario_configurados define cada cuánto
      * puede empezar una reserva (paso), no la duración de la misma.
      */
-    public function slotsDisponibles(Cancha $cancha, string $fecha, int $duracionMinutos = 60): array
+    public function slotsDisponibles(Cancha $cancha, string $fecha, int $duracionMinutos = 60, ?int $excluirReservaId = null): array
     {
         $diaSemana = $this->diaSemanaEspanol(date('N', strtotime($fecha)));
 
@@ -43,6 +43,7 @@ class DisponibilidadService
         $reservasOcupadas = Reserva::where('id_cancha', $cancha->id)
             ->where('fecha_reserva', $fecha)
             ->where('id_estado_reserva', '!=', EstadoReserva::CANCELADA)
+            ->when($excluirReservaId, fn($q) => $q->where('id', '!=', $excluirReservaId))
             ->get();
 
         $slots = [];

@@ -47,6 +47,9 @@
             <div class="modal-body" id="cuerpoDetalle"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-warning" id="btnAbrirReprogramar" style="display:none;">
+                    <i class="fa fa-calendar me-1"></i> Reprogramar Reserva
+                </button>
                 <button type="button" class="btn btn-danger" id="btnAbrirCancelar" style="display:none;">
                     <i class="fa fa-times me-1"></i> Cancelar Reserva
                 </button>
@@ -111,6 +114,54 @@
     </div>
 </div>
 
+{{-- Modal Reprogramar --}}
+<div class="modal fade" id="modalReprogramar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formReprogramar" novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title">Reprogramar Reserva</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="reprogramarId">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Nueva fecha <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="reprogramar_fecha" name="fecha" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Duración <span class="text-danger">*</span></label>
+                            <select class="form-control" id="reprogramar_duracion" name="duracion" required>
+                                @foreach($duraciones as $d)
+                                    <option value="{{ $d }}">{{ $d }} min</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nuevo horario <span class="text-danger">*</span></label>
+                        <select class="form-control" id="reprogramar_horario" name="horario" required>
+                            <option value="">Selecciona una fecha primero</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Motivo de reprogramación <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="motivo_reprogramacion" name="motivo_reprogramacion" rows="2" maxlength="255" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Volver</button>
+                    <button type="submit" class="btn btn-warning">Confirmar reprogramación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('script')
@@ -119,8 +170,9 @@ $(document).ready(function () {
 
     $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } });
 
-    let modalDetalle  = new bootstrap.Modal(document.getElementById('modalDetalle'));
-    let modalCancelar = new bootstrap.Modal(document.getElementById('modalCancelar'));
+    let modalDetalle     = new bootstrap.Modal(document.getElementById('modalDetalle'));
+    let modalCancelar    = new bootstrap.Modal(document.getElementById('modalCancelar'));
+    let modalReprogramar = new bootstrap.Modal(document.getElementById('modalReprogramar'));
 
     const estadoBadge = {
         'Confirmada': 'badge-success',
@@ -195,11 +247,14 @@ $(document).ready(function () {
             $('#cuerpoDetalle').html(html);
             $('#cancelarId').val(r.id);
             $('#monto_reembolso').val(r.total);
+            $('#reprogramarId').val(r.id);
 
             if (r.estado === 'Confirmada') {
                 $('#btnAbrirCancelar').show();
+                $('#btnAbrirReprogramar').show();
             } else {
                 $('#btnAbrirCancelar').hide();
+                $('#btnAbrirReprogramar').hide();
             }
 
             modalDetalle.show();
@@ -245,6 +300,85 @@ $(document).ready(function () {
                 GS.toastError(Object.values(xhr.responseJSON.errors)[0][0]);
             } else {
                 GS.toastError('Error al cancelar la reserva.');
+            }
+        });
+    });
+
+    // Abrir modal reprogramar desde detalle
+    $('#btnAbrirReprogramar').on('click', function () {
+        modalDetalle.hide();
+        $('#formReprogramar')[0].reset();
+        $('#reprogramar_fecha').attr('min', new Date().toISOString().slice(0, 10));
+        $('#reprogramar_horario').html('<option value="">Selecciona una fecha primero</option>');
+        modalReprogramar.show();
+    });
+
+    function cargarHorariosReprogramar() {
+        let id = $('#reprogramarId').val();
+        let fecha = $('#reprogramar_fecha').val();
+        let duracion = $('#reprogramar_duracion').val();
+        let $horario = $('#reprogramar_horario');
+
+        if (!id || !fecha || !duracion) return;
+
+        $horario.html('<option value="">Cargando...</option>');
+
+        $.getJSON("{{ url('admin/reservas/slots-reprogramar') }}/" + id, { fecha: fecha, duracion: duracion }, function (resp) {
+            if (resp.status === 200 && resp.data.length) {
+                let options = resp.data.map(s => `<option value="${s.hora_inicio}|${s.hora_fin}">${s.hora_inicio} - ${s.hora_fin}</option>`).join('');
+                $horario.html(options);
+            } else {
+                $horario.html('<option value="">Sin horarios disponibles para esa fecha</option>');
+            }
+        }).fail(function () {
+            $horario.html('<option value="">Error al cargar horarios</option>');
+        });
+    }
+
+    $('#reprogramar_fecha, #reprogramar_duracion').on('change', cargarHorariosReprogramar);
+
+    // Confirmar reprogramación
+    $('#formReprogramar').on('submit', function (e) {
+        e.preventDefault();
+        let id = $('#reprogramarId').val();
+        let horario = $('#reprogramar_horario').val();
+
+        if (!horario) {
+            GS.toastError('Selecciona un horario disponible.');
+            return;
+        }
+
+        let [hora_inicio, hora_fin] = horario.split('|');
+
+        GS.inicioSolicitud();
+        $.ajax({
+            url: "{{ url('admin/reservas/reprogramar') }}/" + id,
+            type: "POST",
+            data: {
+                fecha: $('#reprogramar_fecha').val(),
+                hora_inicio: hora_inicio,
+                hora_fin: hora_fin,
+                motivo_reprogramacion: $('#motivo_reprogramacion').val(),
+                _method: 'PUT'
+            },
+            dataType: "json"
+        })
+        .done(function (resp) {
+            GS.finSolicitud();
+            if (resp.status === 200) {
+                modalReprogramar.hide();
+                GS.toastSuccess(resp.message);
+                TablaReservas.ajax.reload(null, false);
+            } else {
+                GS.toastError(resp.message);
+            }
+        })
+        .fail(function (xhr) {
+            GS.finSolicitud();
+            if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                GS.toastError(Object.values(xhr.responseJSON.errors)[0][0]);
+            } else {
+                GS.toastError('Error al reprogramar la reserva.');
             }
         });
     });

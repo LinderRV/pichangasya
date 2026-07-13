@@ -29,6 +29,6 @@ class ComplejoDeportivo extends Model
 
     public function usuarioComplejo(): HasOne
     {
-        return $this->hasOne(UsuarioComplejo::class, 'id_complejo');
+        return $this->hasOne(UsuarioComplejo::class, 'id_complejo')->where('cargo', 'Dueño');
     }
 }

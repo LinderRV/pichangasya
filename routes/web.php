@@ -141,6 +141,8 @@ Route::middleware(['auth', 'role:1,2'])->group(function () {
         Route::get('/lista', [AdminReservaController::class, 'lista'])->name('admin.reservas.lista');
         Route::get('/obtener/{id}', [AdminReservaController::class, 'obtener'])->name('admin.reservas.obtener');
         Route::put('/cancelar/{id}', [AdminReservaController::class, 'cancelar'])->name('admin.reservas.cancelar');
+        Route::get('/slots-reprogramar/{id}', [AdminReservaController::class, 'slotsReprogramar'])->name('admin.reservas.slots_reprogramar');
+        Route::put('/reprogramar/{id}', [AdminReservaController::class, 'reprogramar'])->name('admin.reservas.reprogramar');
     });
 
     // Admin / Dueño — Historial de pagos

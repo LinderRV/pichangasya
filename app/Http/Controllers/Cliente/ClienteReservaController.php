@@ -14,8 +14,11 @@ use App\Models\HistorialEstadoReserva;
 use App\Models\EstadoReserva;
 use App\Services\DisponibilidadService;
 use App\Services\NiubizService;
+use App\Mail\ReservaConfirmadaMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -234,7 +237,7 @@ class ClienteReservaController extends Controller
 
         // Bloquea la cancha para que dos pagos concurrentes por el mismo
         // horario no pasen ambos la verificación de disponibilidad.
-        return DB::transaction(function () use ($pending, $cancha, $duracionMinutos, $codigoAutorizacion, $metodoPago) {
+        $reserva = DB::transaction(function () use ($pending, $cancha, $duracionMinutos, $codigoAutorizacion, $metodoPago) {
             Cancha::where('id', $cancha->id)->lockForUpdate()->first();
 
             $slots = $this->disponibilidad->slotsDisponibles($cancha, $pending['fecha'], $duracionMinutos);
@@ -283,6 +286,25 @@ class ClienteReservaController extends Controller
 
             return $reserva;
         });
+
+        if ($reserva) {
+            $this->enviarCorreoConfirmacion($reserva);
+        }
+
+        return $reserva;
+    }
+
+    private function enviarCorreoConfirmacion(Reserva $reserva): void
+    {
+        try {
+            $reserva->load(['cliente.usuario', 'cancha.complejo']);
+            $email = optional($reserva->cliente->usuario)->email;
+            if ($email) {
+                Mail::to($email)->send(new ReservaConfirmadaMail($reserva));
+            }
+        } catch (Exception $e) {
+            Log::error('No se pudo enviar correo de confirmación de reserva: ' . $e->getMessage());
+        }
     }
 
     // ─── LISTA DE RESERVAS DEL CLIENTE ────────────────────────────────────────

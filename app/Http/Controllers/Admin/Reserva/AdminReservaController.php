@@ -11,8 +11,14 @@ use App\Models\Reembolso;
 use App\Models\HistorialEstadoReserva;
 use App\Models\EstadoReserva;
 use App\Models\UsuarioComplejo;
+use App\Models\Cancha;
+use App\Services\DisponibilidadService;
+use App\Mail\ReservaCanceladaMail;
+use App\Mail\ReservaReprogramadaMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Exception;
 
@@ -20,7 +26,9 @@ class AdminReservaController extends Controller
 {
     public function index()
     {
-        return view('admin.reserva.index');
+        return view('admin.reserva.index', [
+            'duraciones' => DisponibilidadService::DURACIONES_PERMITIDAS,
+        ]);
     }
 
     public function lista()
@@ -108,7 +116,7 @@ class AdminReservaController extends Controller
     public function cancelar(Request $request, $id)
     {
         try {
-            $reserva = Reserva::with('pago')->find($id);
+            $reserva = Reserva::with('pago', 'cliente.usuario', 'cancha.complejo')->find($id);
             if (!$reserva) {
                 return response()->json(Service::responseError('Reserva no encontrada.'), 404);
             }
@@ -161,11 +169,141 @@ class AdminReservaController extends Controller
                 ]);
             });
 
+            $this->enviarCorreoCancelacion($reserva, $request->metodo_reembolso, (float) $request->monto_reembolso);
+
             return response()->json(Service::responseSuccess('Reserva cancelada y reembolso registrado.'));
         } catch (ValidationException $e) {
             throw $e;
         } catch (Exception $e) {
             return response()->json(Service::responseError('Error al cancelar la reserva.'));
+        }
+    }
+
+    private function enviarCorreoCancelacion(Reserva $reserva, string $metodoReembolso, float $montoReembolso): void
+    {
+        try {
+            $email = optional($reserva->cliente->usuario)->email;
+            if ($email) {
+                Mail::to($email)->send(new ReservaCanceladaMail($reserva, $metodoReembolso, $montoReembolso));
+            }
+        } catch (Exception $e) {
+            Log::error('No se pudo enviar correo de cancelación de reserva: ' . $e->getMessage());
+        }
+    }
+
+    public function slotsReprogramar(Request $request, $id, DisponibilidadService $disponibilidad)
+    {
+        try {
+            $reserva = Reserva::with('cancha')->find($id);
+            if (!$reserva) {
+                return response()->json(Service::responseError('Reserva no encontrada.'), 404);
+            }
+
+            $this->verificarAcceso($reserva);
+
+            if ($reserva->id_estado_reserva !== EstadoReserva::CONFIRMADA) {
+                return response()->json(Service::responseError('Solo se pueden reprogramar reservas confirmadas.'));
+            }
+
+            $request->validate([
+                'fecha'    => ['required', 'date', 'after_or_equal:today'],
+                'duracion' => ['required', 'integer'],
+            ]);
+
+            if (!DisponibilidadService::duracionValida((int) $request->duracion)) {
+                return response()->json(Service::responseError('Duración no válida.'));
+            }
+
+            $slots = $disponibilidad->slotsDisponibles(
+                $reserva->cancha,
+                $request->fecha,
+                (int) $request->duracion,
+                $reserva->id
+            );
+
+            return response()->json(Service::responseSuccess('OK', $slots));
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (Exception $e) {
+            return response()->json(Service::responseError('Error al obtener horarios disponibles.'));
+        }
+    }
+
+    public function reprogramar(Request $request, $id, DisponibilidadService $disponibilidad)
+    {
+        try {
+            $reserva = Reserva::with('cancha.complejo', 'cliente.usuario')->find($id);
+            if (!$reserva) {
+                return response()->json(Service::responseError('Reserva no encontrada.'), 404);
+            }
+
+            $this->verificarAcceso($reserva);
+
+            if ($reserva->id_estado_reserva !== EstadoReserva::CONFIRMADA) {
+                return response()->json(Service::responseError('Solo se pueden reprogramar reservas confirmadas.'));
+            }
+
+            $request->validate([
+                'fecha'                  => ['required', 'date', 'after_or_equal:today'],
+                'hora_inicio'            => ['required', 'date_format:H:i'],
+                'hora_fin'               => ['required', 'date_format:H:i', 'after:hora_inicio'],
+                'motivo_reprogramacion'  => ['required', 'string', 'max:255'],
+            ]);
+
+            $duracionMinutos = (strtotime($request->hora_fin) - strtotime($request->hora_inicio)) / 60;
+
+            if (!DisponibilidadService::duracionValida((int) $duracionMinutos)) {
+                return response()->json(Service::responseError('El horario seleccionado no tiene una duración válida.'));
+            }
+
+            $fechaAnterior = $reserva->fecha_reserva;
+            $horaInicioAnterior = substr($reserva->hora_inicio, 0, 5);
+            $horaFinAnterior = substr($reserva->hora_fin, 0, 5);
+
+            DB::transaction(function () use ($request, $reserva, $disponibilidad, $duracionMinutos, $fechaAnterior, $horaInicioAnterior, $horaFinAnterior) {
+                $cancha = Cancha::where('id', $reserva->id_cancha)->lockForUpdate()->first();
+
+                $slots = $disponibilidad->slotsDisponibles($cancha, $request->fecha, (int) $duracionMinutos, $reserva->id);
+                $disponible = collect($slots)->contains(fn($s) => $s['hora_inicio'] === $request->hora_inicio . ':00' || $s['hora_inicio'] === $request->hora_inicio);
+
+                if (!$disponible) {
+                    throw new Exception('El horario seleccionado ya no está disponible.');
+                }
+
+                $reserva->update([
+                    'fecha_reserva' => $request->fecha,
+                    'hora_inicio'   => $request->hora_inicio,
+                    'hora_fin'      => $request->hora_fin,
+                ]);
+
+                HistorialEstadoReserva::create([
+                    'id_reserva'        => $reserva->id,
+                    'id_estado_reserva' => EstadoReserva::CONFIRMADA,
+                    'id_usuario'        => Auth::id(),
+                    'fecha_cambio'      => now(),
+                    'observacion'       => "Reprogramada de {$fechaAnterior} {$horaInicioAnterior}-{$horaFinAnterior} a {$request->fecha} {$request->hora_inicio}-{$request->hora_fin}. Motivo: {$request->motivo_reprogramacion}",
+                ]);
+            });
+
+            $this->enviarCorreoReprogramacion($reserva, $fechaAnterior, $horaInicioAnterior, $horaFinAnterior, $request->motivo_reprogramacion);
+
+            return response()->json(Service::responseSuccess('Reserva reprogramada correctamente.'));
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (Exception $e) {
+            return response()->json(Service::responseError($e->getMessage() ?: 'Error al reprogramar la reserva.'));
+        }
+    }
+
+    private function enviarCorreoReprogramacion(Reserva $reserva, string $fechaAnterior, string $horaInicioAnterior, string $horaFinAnterior, string $motivo): void
+    {
+        try {
+            $email = optional($reserva->cliente->usuario)->email;
+            if ($email) {
+                Mail::to($email)->send(new ReservaReprogramadaMail($reserva, $fechaAnterior, $horaInicioAnterior, $horaFinAnterior, $motivo));
+            }
+        } catch (Exception $e) {
+            Log::error('No se pudo enviar correo de reprogramación de reserva: ' . $e->getMessage());
         }
     }
 
