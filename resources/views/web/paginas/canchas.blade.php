@@ -1,7 +1,7 @@
 @extends('web.layouts.app-web')
 
 @section('content')
-<style>
+<style nonce="{{ request()->attributes->get('csp_nonce') }}">
     :root{ --pya-green:#198754; }
     .muted{ color:rgba(17,24,39,.62); }
     .section-title{ font-weight:900; letter-spacing:-.01em; }

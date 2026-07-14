@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-<style>
+<style nonce="{{ request()->attributes->get('csp_nonce') }}">
     :root{ --pya-green:#198754; }
     .muted{ color:rgba(17,24,39,.62); }
 
@@ -327,7 +327,7 @@
 @endsection
 
 @section('script')
-<script>
+<script nonce="{{ request()->attributes->get('csp_nonce') }}">
 (function(){
     const isAuth       = {{ auth()->check() ? 'true' : 'false' }};
     const idCancha     = {{ $cancha->id }};

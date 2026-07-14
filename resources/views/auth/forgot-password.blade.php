@@ -6,7 +6,7 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form method="POST" action="{{ route('password.email') }}">
+    <form id="formForgotPassword" method="POST" action="{{ route('password.email') }}">
         @csrf
 
         <!-- Email Address -->
@@ -22,4 +22,26 @@
             </x-primary-button>
         </div>
     </form>
+
+    <script nonce="{{ request()->attributes->get('csp_nonce') }}">
+        $(function () {
+            $('#formForgotPassword').on('submit', function (event) {
+                event.preventDefault();
+                const $form = $(this);
+
+                $.ajax({
+                    url: $form.attr('action'),
+                    type: 'POST',
+                    data: $form.serialize(),
+                    dataType: 'json',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                }).done(function (response) {
+                    GS.toastSuccess(response.message);
+                }).fail(function (xhr) {
+                    const message = xhr.responseJSON?.message || 'No se pudo procesar la solicitud.';
+                    GS.toastError(message);
+                });
+            });
+        });
+    </script>
 </x-guest-layout>

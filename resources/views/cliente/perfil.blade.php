@@ -218,7 +218,7 @@
 @endsection
 
 @section('script')
-<script>
+<script nonce="{{ request()->attributes->get('csp_nonce') }}">
     $(function () {
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }

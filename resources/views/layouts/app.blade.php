@@ -308,11 +308,9 @@
 	<script src="/js/deznav-init.js"></script>
 	<script src="/js/demo.js"></script>
 
-    <!-- Helpers GS (SweetAlert2 + Toastr locales, Toastify  CDN) -->
+    <!-- Helpers GS (SweetAlert2 + Toastr locales) -->
     <script src="/vendor/sweetalert2/dist/sweetalert2.min.js"></script>
     <script src="/vendor/toastr/js/toastr.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="/pichanga/js/funciones.js"></script>
 
     @yield('script')

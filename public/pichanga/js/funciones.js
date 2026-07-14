@@ -98,22 +98,20 @@ modalConfirmacion: function (titulo, mensaje, confirmCallback) {
     return blob;
   },
   toastSuccess: function (message) {
-    Toastify({
-      text: message,
-      duration: 3000,
-      gravity: "top",
-      position: "right",
-      backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
-    }).showToast();
+    toastr.success(message, "Operación exitosa", {
+      positionClass: "toast-top-right",
+      timeOut: 3000,
+      progressBar: true,
+      closeButton: true,
+    });
   },
   toastError: function (message) {
-    Toastify({
-      text: message,
-      duration: 3000,
-      gravity: "top",
-      position: "right",
-      backgroundColor: "linear-gradient(to right, #FF5F6D, #FFC371)",
-    }).showToast();
+    toastr.error(message, "Error", {
+      positionClass: "toast-top-right",
+      timeOut: 3000,
+      progressBar: true,
+      closeButton: true,
+    });
   },
 
   confirmarArea: function (mensaje, callback) {

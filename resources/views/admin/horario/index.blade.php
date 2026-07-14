@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
 
-<style>
+<style nonce="{{ request()->attributes->get('csp_nonce') }}">
     .dataTables_wrapper .dataTables_paginate .paginate_button {
         border-radius: 0 !important;
         margin: 0 3px;
@@ -117,7 +117,7 @@
 @endsection
 
 @section('script')
-<script>
+<script nonce="{{ request()->attributes->get('csp_nonce') }}">
 $(document).ready(function () {
 
     $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } });

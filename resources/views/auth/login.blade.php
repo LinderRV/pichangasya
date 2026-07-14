@@ -6,10 +6,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Iniciar sesión | PichangasYa</title>
     <link rel="icon" type="image/png" href="/images/favicon.png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">
-    <style>
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="/icons/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/vendor/toastr/css/toastr.min.css" rel="stylesheet">
+    <style nonce="{{ request()->attributes->get('csp_nonce') }}">
         :root{ --pya-green:#198754; --pya-dark:#0b1220; }
         body{ background:#f6f8fb; }
         .auth-shell{ min-height:100vh; display:flex; }
@@ -161,11 +161,10 @@
         </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="/vendor/global/global.min.js"></script>
+    <script src="/vendor/toastr/js/toastr.min.js"></script>
     <script src="/pichanga/js/funciones.js"></script>
-    <script>
+    <script nonce="{{ request()->attributes->get('csp_nonce') }}">
         $(function () {
             $("#formLogin").on("submit", function (e) {
                 e.preventDefault();

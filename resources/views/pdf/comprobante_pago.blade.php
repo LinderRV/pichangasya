@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<style>
+<style nonce="{{ request()->attributes->get('csp_nonce') }}">
     @page { margin: 24px 28px; }
     * { box-sizing: border-box; }
     body { font-family: 'Helvetica', Arial, sans-serif; color: #111827; font-size: 12px; }

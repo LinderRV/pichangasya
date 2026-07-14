@@ -1,0 +1,44 @@
+env:
+  contexts:
+    - name: "PichangasYa - verificacion final"
+      urls:
+        - "http://pichangasya.test"
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    progressToStdout: true
+
+jobs:
+  - type: requestor
+    parameters:
+      user: ""
+    requests:
+      - url: "http://pichangasya.test/"
+        name: "Pagina principal"
+        method: "GET"
+        responseCode: 200
+
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 5
+
+  - type: report
+    parameters:
+      template: "traditional-html"
+      reportDir: "C:\\laragon\\www\\pichangasya\\docs\\informe-pruebas"
+      reportFile: "REPORTE_ZAP_FINAL_0_RIESGOS.html"
+      reportTitle: "PichangasYa - Verificacion final OWASP ZAP"
+      reportDescription: "Analisis pasivo final del despliegue local luego de aplicar las medidas de remediacion."
+      displayReport: false
+    risks:
+      - high
+      - medium
+      - low
+      - info
+    confidences:
+      - high
+      - medium
+      - low
+      - falsepositive
+    sites:
+      - "pichangasya.test"

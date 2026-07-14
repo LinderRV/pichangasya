@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('link')
-    <style>
+    <style nonce="{{ request()->attributes->get('csp_nonce') }}">
         .welcome-card {
             background: linear-gradient(135deg, #198754 0%, #145c35 100%);
             border-radius: 18px;
