@@ -3,21 +3,22 @@
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 <head>
 
-  	   <!-- Title -->
-	<title>Sistemas Pichanga ya</title>
+	<title>@yield('title', 'PichangasYa | Reserva canchas deportivas')</title>
 
 	<!-- Meta -->
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="author" content="DexignZone">
-	<meta name="robots" content="">
+	<meta name="author" content="PichangasYa">
+	<meta name="robots" content="index,follow">
+	<meta name="description" content="@yield('meta_description', 'Encuentra canchas deportivas, consulta horarios disponibles y confirma tu reserva online con PichangasYa.')">
+	<link rel="canonical" href="{{ url()->current() }}">
 
-	<meta name="keywords" content="Desarrollar un sistema web orientado a la gestión integral de reservas de canchas deportivas que permita controlar  la disponibilidad, automatizar la asignación de horarios y centralizar la información operativa, con el fin de optimizar la eficiencia del negocio y minimizar pérdidas derivadas de una gestión manual ineficiente.">
-	<meta name="description" content="Sistemas Pichanga ya es un desarrollo inmobiliario de primer nivel que ofrece una variedad de propiedades residenciales de alta calidad diseñadas para satisfacer las diversas necesidades y preferencias de los compradores. Con su compromiso con la excelencia y la atención al detalle, Sistemas Pichanga ya se ha establecido como una marca de confianza en la industria inmobiliaria.">
-
-	<meta property="og:title" content="Sistemas Pichanga ya">
-	<meta property="og:description" content="Sistemas Pichanga ya es un desarrollo inmobiliario de primer nivel que ofrece una variedad de propiedades residenciales de alta calidad diseñadas para satisfacer las diversas necesidades y preferencias de los compradores. Con su compromiso con la excelencia y la atención al detalle, Sistemas Pichanga ya se ha establecido como una marca de confianza en la industria inmobiliaria.">
-	<meta property="og:image" content="../griya.dexignzone.com/xhtml/social-image.html">
+	<meta property="og:type" content="website">
+	<meta property="og:site_name" content="PichangasYa">
+	<meta property="og:title" content="@yield('og_title', 'PichangasYa | Reserva canchas deportivas')">
+	<meta property="og:description" content="@yield('meta_description', 'Encuentra canchas deportivas, consulta horarios disponibles y confirma tu reserva online con PichangasYa.')">
+	<meta property="og:url" content="{{ url()->current() }}">
+	<meta property="og:image" content="{{ asset('/images/logo-icon.png') }}">
 	<meta name="format-detection" content="telephone=no">
 
 	<!-- Mobile Specific -->
@@ -75,17 +76,6 @@
         .public-footer a:hover { color: #fff; text-decoration: underline; }
         .public-footer .muted { color: rgba(255,255,255,.64); }
         .public-footer .footer-title { font-size: .95rem; font-weight: 800; letter-spacing: .2px; }
-        .social-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 999px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255,255,255,.10);
-            border: 1px solid rgba(255,255,255,.12);
-        }
-        .social-btn:hover { background: rgba(255,255,255,.16); }
     </style>
       
 @yield('link')
@@ -106,9 +96,10 @@
 
                 <div class="collapse navbar-collapse" id="publicNavbar">
                     <ul class="public-nav navbar-nav ms-auto align-items-lg-center gap-lg-1">
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('web.paginas.inicio') || request()->is('/') ? 'active' : '' }}" href="{{ route('web.paginas.inicio') }}">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('home') || request()->routeIs('web.paginas.inicio') ? 'active' : '' }}" href="{{ route('home') }}">Inicio</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('web.paginas.canchas') || request()->routeIs('web.paginas.cancha') ? 'active' : '' }}" href="{{ route('web.paginas.canchas') }}">Canchas</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('web.paginas.inicio') }}#como-funciona">Cómo funciona</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#como-funciona">Cómo funciona</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('web.paginas.ayuda') ? 'active' : '' }}" href="{{ route('web.paginas.ayuda') }}">Ayuda</a></li>
                     </ul>
 
                     <div class="d-flex align-items-lg-center gap-2 ms-lg-3 mt-3 mt-lg-0">
@@ -145,7 +136,7 @@
         <footer class="public-footer pt-5">
             <div class="container">
                 <div class="row g-4 align-items-start pb-4">
-                    <div class="col-12 col-lg-3">
+                    <div class="col-12 col-lg-4">
                         <div class="d-flex align-items-center gap-2 mb-2">
                             <span class="fw-bold fs-5">Pichangas<span style="color: var(--pya-green)">Ya</span></span>
                         </div>
@@ -155,38 +146,27 @@
                     <div class="col-6 col-lg-2">
                         <div class="footer-title mb-3">Enlaces</div>
                         <ul class="list-unstyled d-grid gap-2 mb-0">
-                            <li><a href="/">Inicio</a></li>
-                            <li><a href="#canchas">Canchas</a></li>
-                            <li><a href="#como-funciona">Como funciona</a></li>
-                            <li><a href="#contactanos">Contáctanos</a></li>
+                            <li><a href="{{ route('home') }}">Inicio</a></li>
+                            <li><a href="{{ route('web.paginas.canchas') }}">Canchas</a></li>
+                            <li><a href="{{ route('home') }}#como-funciona">Cómo funciona</a></li>
                         </ul>
                     </div>
 
-                    <div class="col-6 col-lg-2">
+                    <div class="col-6 col-lg-3">
                         <div class="footer-title mb-3">Legal</div>
                         <ul class="list-unstyled d-grid gap-2 mb-0">
-                            <li><a href="#">Términos y condiciones</a></li>
-                            <li><a href="#">Política de privacidad</a></li>
-                            <li><a href="#">Política de cookies</a></li>
+                            <li><a href="{{ route('web.paginas.terminos') }}">Términos y condiciones</a></li>
+                            <li><a href="{{ route('web.paginas.privacidad') }}">Política de privacidad y cookies</a></li>
                         </ul>
                     </div>
 
                     <div class="col-12 col-lg-3">
-                        <div class="footer-title mb-3">Contacto</div>
+                        <div class="footer-title mb-3">Ayuda y seguridad</div>
                         <ul class="list-unstyled d-grid gap-2 mb-0">
-                            <li class="d-flex align-items-center gap-2"><i class="bi bi-telephone"></i><a href="tel:+51912345678">+51 912 345 678</a></li>
-                            <li class="d-flex align-items-center gap-2"><i class="bi bi-envelope"></i><a href="mailto:hola@pichangasya.com">hola@pichangasya.com</a></li>
-                            <li class="d-flex align-items-center gap-2"><i class="bi bi-geo-alt"></i><span class="muted">Lima, Perú</span></li>
+                            <li><a href="{{ route('web.paginas.ayuda') }}">Centro de ayuda</a></li>
+                            <li><span class="muted"><i class="bi bi-shield-check me-1"></i>Pago procesado mediante Niubiz</span></li>
+                            <li><span class="muted">Cada complejo publica sus propios datos de contacto.</span></li>
                         </ul>
-                    </div>
-
-                    <div class="col-12 col-lg-2">
-                        <div class="footer-title mb-3">Síguenos</div>
-                        <div class="d-flex gap-2">
-                            <a class="social-btn" href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-                            <a class="social-btn" href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-                            <a class="social-btn" href="#" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
-                        </div>
                     </div>
                 </div>
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Reembolso extends Model
 {
@@ -15,4 +16,9 @@ class Reembolso extends Model
     ];
 
     protected $casts = ['fecha_reembolso' => 'datetime'];
+
+    public function reserva(): BelongsTo
+    {
+        return $this->belongsTo(Reserva::class, 'id_reserva');
+    }
 }

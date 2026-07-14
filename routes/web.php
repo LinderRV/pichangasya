@@ -21,6 +21,9 @@ use App\Http\Controllers\Admin\Reporte\ReporteIngresoController;
 use App\Http\Controllers\Cliente\ClienteReservaController;
 
 Route::get('/', [PaginasController::class, 'inicio'])->name('home');
+Route::get('/terminos-y-condiciones', [PaginasController::class, 'terminos'])->name('web.paginas.terminos');
+Route::get('/politica-de-privacidad', [PaginasController::class, 'privacidad'])->name('web.paginas.privacidad');
+Route::get('/ayuda', [PaginasController::class, 'ayuda'])->name('web.paginas.ayuda');
 
 
 
@@ -173,6 +176,7 @@ Route::middleware(['auth', 'role:1,2'])->group(function () {
 Route::middleware(['auth', 'role:3'])->group(function () {
     Route::post('/cliente/niubiz/sesion', [ClienteReservaController::class, 'niubizSesion'])->name('cliente.niubiz.sesion');
     Route::get('/cliente/reservas/lista', [ClienteReservaController::class, 'lista'])->name('cliente.reservas.lista');
+    Route::get('/cliente/reservas/{id}', [ClienteReservaController::class, 'detalle'])->whereNumber('id')->name('cliente.reservas.detalle');
     Route::get('/cliente/reservas/{id}/comprobante', [ClienteReservaController::class, 'comprobantePdf'])->name('cliente.reservas.comprobante');
 
     // Legacy

@@ -346,6 +346,55 @@ class ClienteReservaController extends Controller
         }
     }
 
+    public function detalle($id)
+    {
+        $cliente = Auth::user()->cliente;
+
+        if (!$cliente) {
+            abort(404);
+        }
+
+        $reserva = Reserva::with([
+            'cancha.complejo:id,nombre,direccion,telefono,correo',
+            'estadoReserva:id,nombre',
+            'pago.metodoPago:id,nombre',
+            'historial.estadoReserva:id,nombre',
+            'reembolso',
+        ])
+            ->where('id_cliente', $cliente->id)
+            ->findOrFail($id);
+
+        return response()->json(Service::responseSuccess('OK', [
+            'codigo'              => $reserva->codigo_reserva,
+            'cancha'              => optional($reserva->cancha)->nombre ?? '-',
+            'complejo'            => optional(optional($reserva->cancha)->complejo)->nombre ?? '-',
+            'direccion'           => optional(optional($reserva->cancha)->complejo)->direccion ?? '-',
+            'telefono_complejo'   => optional(optional($reserva->cancha)->complejo)->telefono,
+            'correo_complejo'     => optional(optional($reserva->cancha)->complejo)->correo,
+            'fecha'               => date('d/m/Y', strtotime($reserva->fecha_reserva)),
+            'horario'             => substr($reserva->hora_inicio, 0, 5) . ' – ' . substr($reserva->hora_fin, 0, 5),
+            'total'               => 'S/ ' . number_format($reserva->total, 2),
+            'estado'              => optional($reserva->estadoReserva)->nombre ?? '-',
+            'motivo_cancelacion'  => $reserva->motivo_cancelacion,
+            'pago'                => $reserva->pago ? [
+                'metodo' => optional($reserva->pago->metodoPago)->nombre ?? '-',
+                'estado' => ucfirst($reserva->pago->estado),
+                'fecha'  => optional($reserva->pago->fecha_pago)?->format('d/m/Y H:i'),
+                'monto'  => 'S/ ' . number_format($reserva->pago->monto, 2),
+            ] : null,
+            'reembolso'           => $reserva->reembolso ? [
+                'metodo' => ucfirst($reserva->reembolso->metodo_reembolso),
+                'monto'  => 'S/ ' . number_format($reserva->reembolso->monto, 2),
+                'fecha'  => optional($reserva->reembolso->fecha_reembolso)?->format('d/m/Y H:i'),
+                'codigo' => $reserva->reembolso->codigo_operacion,
+            ] : null,
+            'historial'           => $reserva->historial->map(fn($item) => [
+                'estado' => optional($item->estadoReserva)->nombre ?? '-',
+                'fecha'  => optional($item->fecha_cambio)?->format('d/m/Y H:i'),
+            ])->values(),
+        ]));
+    }
+
     // ─── Comprobante de pago (PDF) ────────────────────────────────────────────
 
     public function comprobantePdf($idReserva)

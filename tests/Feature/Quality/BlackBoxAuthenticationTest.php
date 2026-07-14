@@ -34,6 +34,68 @@ class BlackBoxAuthenticationTest extends TestCase
             ->assertCookieMissing('XSRF-TOKEN');
     }
 
+    public function test_public_home_and_institutional_pages_are_available(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Cómo funciona')
+            ->assertSee(route('web.paginas.terminos'), false)
+            ->assertSee(route('web.paginas.privacidad'), false)
+            ->assertSee(route('web.paginas.ayuda'), false);
+
+        $this->get('/terminos-y-condiciones')->assertOk()->assertSee('Términos y condiciones de uso');
+        $this->get('/politica-de-privacidad')->assertOk()->assertSee('Política de privacidad y cookies');
+        $this->get('/ayuda')->assertOk()->assertSee('Centro de ayuda');
+    }
+
+    public function test_super_admin_dashboard_displays_actionable_business_metrics(): void
+    {
+        $usuario = $this->createUsuario('activo');
+        DB::table('usuario_rol')->insert(['id_usuario' => $usuario->id, 'id_rol' => 1]);
+
+        $this->actingAs($usuario)
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Ticket Promedio')
+            ->assertSee('Tasa de Cancelación')
+            ->assertSee('Reembolsos del Mes')
+            ->assertSee('Evolución de los últimos 6 meses');
+    }
+
+    public function test_client_can_view_sanitized_detail_of_own_reservation(): void
+    {
+        $usuario = $this->createUsuario('activo');
+        DB::table('usuario_rol')->insert(['id_usuario' => $usuario->id, 'id_rol' => 3]);
+        $reservaId = $this->seedReservationDomain($usuario->id);
+
+        $this->actingAs($usuario)
+            ->getJson('/cliente/reservas/' . $reservaId)
+            ->assertOk()
+            ->assertJsonPath('data.codigo', 'RES-DETALLE')
+            ->assertJsonPath('data.estado', 'Confirmada')
+            ->assertJsonPath('data.historial.0.estado', 'Confirmada')
+            ->assertJsonMissing(['observacion' => 'Dato interno no visible']);
+    }
+
+    public function test_client_cannot_view_another_clients_reservation(): void
+    {
+        $propietario = $this->createUsuario('activo');
+        DB::table('usuario_rol')->insert(['id_usuario' => $propietario->id, 'id_rol' => 3]);
+        $reservaId = $this->seedReservationDomain($propietario->id);
+
+        $otro = Usuario::create([
+            'nombres' => 'Otro',
+            'apellidos' => 'Cliente',
+            'email' => 'otro@example.test',
+            'password' => Hash::make('Password123!'),
+            'estado' => 'activo',
+        ]);
+        DB::table('usuario_rol')->insert(['id_usuario' => $otro->id, 'id_rol' => 3]);
+        DB::table('clientes')->insert(['id_usuario' => $otro->id, 'documento_identidad' => 'DOC-OTRO']);
+
+        $this->actingAs($otro)->getJson('/cliente/reservas/' . $reservaId)->assertNotFound();
+    }
+
     public function test_password_recovery_page_does_not_disclose_an_application_error(): void
     {
         $this->get('/forgot-password')
@@ -146,5 +208,58 @@ class BlackBoxAuthenticationTest extends TestCase
             'password' => Hash::make('Password123!'),
             'estado' => $estado,
         ]);
+    }
+
+    private function seedReservationDomain(int $usuarioId): int
+    {
+        DB::table('departamentos')->insert(['id' => 1, 'nombre' => 'Lima']);
+        DB::table('provincias')->insert(['id' => 1, 'id_departamento' => 1, 'nombre' => 'Lima']);
+        DB::table('distritos')->insert(['id' => 1, 'id_provincia' => 1, 'nombre' => 'Distrito de prueba']);
+        DB::table('complejo_deportivos')->insert([
+            'id' => 1,
+            'id_distrito' => 1,
+            'nombre' => 'Complejo de prueba',
+            'correo' => 'complejo@example.test',
+            'telefono' => '999888777',
+        ]);
+        DB::table('tipo_canchas')->insert(['id' => 1, 'nombre' => 'Fútbol']);
+        DB::table('canchas')->insert([
+            'id' => 1,
+            'id_complejo' => 1,
+            'id_tipo_cancha' => 1,
+            'nombre' => 'Cancha de prueba',
+            'precio_hora' => 50,
+        ]);
+        $clienteId = DB::table('clientes')->insertGetId([
+            'id_usuario' => $usuarioId,
+            'documento_identidad' => 'DOC-PROPIETARIO',
+        ]);
+        DB::table('estado_reservas')->insert([
+            ['id' => 1, 'nombre' => 'Confirmada'],
+            ['id' => 2, 'nombre' => 'Completada'],
+            ['id' => 3, 'nombre' => 'Cancelada'],
+        ]);
+        $reservaId = DB::table('reservas')->insertGetId([
+            'codigo_reserva' => 'RES-DETALLE',
+            'id_cliente' => $clienteId,
+            'id_cancha' => 1,
+            'id_estado_reserva' => 1,
+            'fecha_reserva' => '2030-07-15',
+            'hora_inicio' => '19:00',
+            'hora_fin' => '20:00',
+            'precio_hora' => 50,
+            'subtotal' => 50,
+            'total' => 50,
+            'confirmado_at' => '2030-07-01 10:00:00',
+        ]);
+        DB::table('historial_estado_reservas')->insert([
+            'id_reserva' => $reservaId,
+            'id_estado_reserva' => 1,
+            'id_usuario' => $usuarioId,
+            'fecha_cambio' => '2030-07-01 10:00:00',
+            'observacion' => 'Dato interno no visible',
+        ]);
+
+        return $reservaId;
     }
 }

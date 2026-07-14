@@ -1,5 +1,8 @@
 @extends('web.layouts.app-web')
 
+@section('title', $cancha->nombre . ' | PichangasYa')
+@section('meta_description', 'Consulta información, precio y horarios disponibles para reservar ' . $cancha->nombre . '.')
+
 @section('link')
 @unless(config('niubiz.simulado'))
 <script src="{{ config('niubiz.js_url') }}" data-client="true"></script>
@@ -93,7 +96,7 @@
 {{-- BREADCRUMB --}}
 <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb mb-0" style="font-size:.85rem;">
-        <li class="breadcrumb-item"><a href="{{ route('web.paginas.inicio') }}" class="text-decoration-none link-success">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none link-success">Inicio</a></li>
         <li class="breadcrumb-item"><a href="{{ route('web.paginas.canchas') }}" class="text-decoration-none link-success">Canchas</a></li>
         <li class="breadcrumb-item active">{{ $cancha->nombre }}</li>
     </ol>
@@ -128,6 +131,42 @@
             <p class="mb-0">{{ $cancha->descripcion }}</p>
         </div>
         @endif
+
+        @if($cancha->complejo)
+        <div class="detail-card p-4 mb-4">
+            <div class="section-label mb-3">Información del establecimiento</div>
+            <h2 class="h5 fw-bold mb-2">{{ $cancha->complejo->nombre }}</h2>
+            @if($cancha->complejo->descripcion)
+                <p class="text-muted">{{ $cancha->complejo->descripcion }}</p>
+            @endif
+            <div class="row g-3 small">
+                @if($cancha->complejo->direccion)
+                <div class="col-12 col-md-6">
+                    <div class="d-flex gap-2"><i class="bi bi-geo-alt text-success"></i><span>{{ $cancha->complejo->direccion }}</span></div>
+                </div>
+                @endif
+                @if($cancha->complejo->correo)
+                <div class="col-12 col-md-6">
+                    <div class="d-flex gap-2"><i class="bi bi-envelope text-success"></i><a class="link-success" href="mailto:{{ $cancha->complejo->correo }}">{{ $cancha->complejo->correo }}</a></div>
+                </div>
+                @endif
+                @if($cancha->complejo->telefono)
+                <div class="col-12 col-md-6">
+                    <div class="d-flex gap-2"><i class="bi bi-telephone text-success"></i><span>{{ $cancha->complejo->telefono }}</span></div>
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
+
+        <div class="detail-card p-4 mb-4">
+            <div class="section-label mb-3">Antes de reservar</div>
+            <div class="row g-3 small">
+                <div class="col-12 col-md-4"><i class="bi bi-check-circle text-success me-1"></i>La reserva se confirma después del pago.</div>
+                <div class="col-12 col-md-4"><i class="bi bi-clock text-success me-1"></i>Llega con anticipación y presenta tu código.</div>
+                <div class="col-12 col-md-4"><i class="bi bi-arrow-repeat text-success me-1"></i>Los cambios se coordinan con el complejo.</div>
+            </div>
+        </div>
 
         {{-- FECHA --}}
         <div class="detail-card p-4 mb-4">

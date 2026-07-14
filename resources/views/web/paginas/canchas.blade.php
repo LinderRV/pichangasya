@@ -1,5 +1,8 @@
 @extends('web.layouts.app-web')
 
+@section('title', 'Canchas deportivas | PichangasYa')
+@section('meta_description', 'Explora canchas deportivas por distrito y tipo, compara precios y consulta horarios disponibles.')
+
 @section('content')
 <style nonce="{{ request()->attributes->get('csp_nonce') }}">
     :root{ --pya-green:#198754; }
@@ -30,7 +33,7 @@
         <h3 class="section-title mb-1">Canchas deportivas</h3>
         <div class="muted">{{ $canchas->count() }} cancha(s) encontrada(s)</div>
     </div>
-    <a href="{{ route('web.paginas.inicio') }}" class="link-secondary text-decoration-none small">
+    <a href="{{ route('home') }}" class="link-secondary text-decoration-none small">
         <i class="bi bi-arrow-left me-1"></i>Volver al inicio
     </a>
 </div>
@@ -93,7 +96,7 @@
     <div class="col-12 col-md-6 col-xl-3">
         <div class="pitch-card">
             <div class="pitch-thumb" style="background-image:url('{{ $cancha->foto ? asset($cancha->foto) : asset('/images/1.jpg') }}');">
-                <span class="badge-availability badge-ok">Disponible</span>
+                <span class="badge-availability badge-ok">Consulta horarios</span>
             </div>
             <div class="p-3">
                 <div class="pitch-title">{{ $cancha->nombre }}</div>

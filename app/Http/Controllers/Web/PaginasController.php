@@ -29,6 +29,27 @@ class PaginasController extends Controller
         return view('web.paginas.inicio', compact('distritos', 'tipoCanchas', 'canchas'));
     }
 
+    public function terminos()
+    {
+        return view('web.paginas.terminos', [
+            'supportEmail' => $this->supportEmail(),
+        ]);
+    }
+
+    public function privacidad()
+    {
+        return view('web.paginas.privacidad', [
+            'supportEmail' => $this->supportEmail(),
+        ]);
+    }
+
+    public function ayuda()
+    {
+        return view('web.paginas.ayuda', [
+            'supportEmail' => $this->supportEmail(),
+        ]);
+    }
+
     public function canchas(Request $request)
     {
         $distritos   = Distrito::select('id', 'nombre')->orderBy('nombre')->get();
@@ -85,5 +106,16 @@ class PaginasController extends Controller
         } catch (\Exception $e) {
             return response()->json(Service::responseError('Error al consultar disponibilidad.'));
         }
+    }
+
+    private function supportEmail(): ?string
+    {
+        $email = trim((string) config('mail.support_address'));
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || str_ends_with(strtolower($email), '@example.com')) {
+            return null;
+        }
+
+        return $email;
     }
 }

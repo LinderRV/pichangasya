@@ -7,5 +7,13 @@
 *.php diff=php
 
 /.github export-ignore
+/.claude export-ignore
+/.codex export-ignore
+/.cursor export-ignore
+/docs export-ignore
+/tests export-ignore
+/.env.example export-ignore
+/.gitignore export-ignore
+/phpunit.xml export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore

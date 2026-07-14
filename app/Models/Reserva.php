@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Reserva extends Model
 {
@@ -55,5 +56,15 @@ class Reserva extends Model
     public function pago(): HasOne
     {
         return $this->hasOne(Pago::class, 'id_reserva');
+    }
+
+    public function historial(): HasMany
+    {
+        return $this->hasMany(HistorialEstadoReserva::class, 'id_reserva')->orderBy('fecha_cambio');
+    }
+
+    public function reembolso(): HasOne
+    {
+        return $this->hasOne(Reembolso::class, 'id_reserva');
     }
 }

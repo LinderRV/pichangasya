@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Cancha extends Model
 {
@@ -28,5 +29,10 @@ class Cancha extends Model
     public function tipoCancha(): BelongsTo
     {
         return $this->belongsTo(TipoCancha::class, 'id_tipo_cancha');
+    }
+
+    public function horarios(): HasMany
+    {
+        return $this->hasMany(HorarioConfigurado::class, 'id_cancha');
     }
 }

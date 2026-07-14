@@ -1,5 +1,8 @@
 @extends('web.layouts.app-web')
 
+@section('title', 'PichangasYa | Encuentra y reserva tu cancha')
+@section('meta_description', 'Busca canchas por distrito y deporte, consulta horarios en tiempo real y confirma tu reserva online mediante Niubiz.')
+
 @section('content')
 <style nonce="{{ request()->attributes->get('csp_nonce') }}">
     :root{ --pya-green:#198754; --pya-dark:#0b1220; }
@@ -115,7 +118,7 @@
         <div class="col-12 col-md-6 col-xl-3">
             <div class="pitch-card">
                 <div class="pitch-thumb" style="background-image:url('{{ $cancha->foto ? asset($cancha->foto) : asset('/images/1.jpg') }}');">
-                    <span class="badge-availability badge-ok">Disponible</span>
+                    <span class="badge-availability badge-ok">Consulta horarios</span>
                 </div>
                 <div class="p-3">
                     <div class="pitch-title">{{ $cancha->nombre }}</div>
@@ -146,6 +149,11 @@
 
 {{-- CÓMO FUNCIONA --}}
 <section class="mt-4 mt-lg-5" id="como-funciona">
+    <div class="text-center mb-4">
+        <span class="badge bg-success-subtle text-success mb-2">Reserva paso a paso</span>
+        <h2 class="section-title h3 mb-1">¿Cómo funciona PichangasYa?</h2>
+        <p class="muted mb-0">Desde la búsqueda hasta la confirmación, todo en un mismo lugar.</p>
+    </div>
     <div class="row g-3">
         <div class="col-12 col-md-6 col-xl-3">
             <div class="feature-tile">
@@ -167,7 +175,7 @@
             <div class="feature-tile">
                 <div class="d-flex gap-3">
                     <div class="feature-ico"><i class="bi bi-credit-card"></i></div>
-                    <div><div class="fw-bold">Paga online</div><div class="small muted">Yape, Plin o tarjeta. Rápido y seguro.</div></div>
+                    <div><div class="fw-bold">Paga online</div><div class="small muted">Completa el pago con tarjeta mediante Niubiz.</div></div>
                 </div>
             </div>
         </div>
@@ -177,6 +185,51 @@
                     <div class="feature-ico"><i class="bi bi-check-circle"></i></div>
                     <div><div class="fw-bold">¡Listo!</div><div class="small muted">Recibe tu confirmación y ve a jugar.</div></div>
                 </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{-- INFORMACIÓN Y CONFIANZA --}}
+<section class="mt-4 mt-lg-5">
+    <div class="row g-3">
+        <div class="col-12 col-lg-4">
+            <div class="feature-tile">
+                <div class="d-flex gap-3">
+                    <div class="feature-ico"><i class="bi bi-clock-history"></i></div>
+                    <div><div class="fw-bold">Disponibilidad actualizada</div><div class="small muted">Los horarios consideran reservas confirmadas y bloqueos registrados por el complejo.</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="feature-tile">
+                <div class="d-flex gap-3">
+                    <div class="feature-ico"><i class="bi bi-receipt"></i></div>
+                    <div><div class="fw-bold">Precio transparente</div><div class="small muted">Conoces la duración y el total antes de iniciar el pago.</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="feature-tile">
+                <div class="d-flex gap-3">
+                    <div class="feature-ico"><i class="bi bi-person-check"></i></div>
+                    <div><div class="fw-bold">Gestión desde tu cuenta</div><div class="small muted">Consulta estados, contacto del complejo y comprobantes de tus reservas.</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mt-4 mt-lg-5">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-4 p-lg-5 d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+            <div>
+                <h2 class="h4 fw-bold mb-2">Reserva con información clara</h2>
+                <p class="muted mb-0">Revisa nuestras condiciones, políticas de privacidad y guía de cancelaciones antes de confirmar.</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ route('web.paginas.ayuda') }}" class="btn btn-success btn-pill">Centro de ayuda</a>
+                <a href="{{ route('web.paginas.terminos') }}" class="btn btn-outline-secondary btn-pill">Ver condiciones</a>
             </div>
         </div>
     </div>
