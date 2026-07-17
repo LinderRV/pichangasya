@@ -164,7 +164,7 @@
                         <div class="footer-title mb-3">Ayuda y seguridad</div>
                         <ul class="list-unstyled d-grid gap-2 mb-0">
                             <li><a href="{{ route('web.paginas.ayuda') }}">Centro de ayuda</a></li>
-                            <li><span class="muted"><i class="bi bi-shield-check me-1"></i>Pago procesado mediante Niubiz</span></li>
+                            <li><span class="muted"><i class="bi bi-shield-check me-1"></i>Pago procesado mediante Stripe</span></li>
                             <li><span class="muted">Cada complejo publica sus propios datos de contacto.</span></li>
                         </ul>
                     </div>

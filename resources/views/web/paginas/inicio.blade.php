@@ -1,7 +1,7 @@
 @extends('web.layouts.app-web')
 
 @section('title', 'PichangasYa | Encuentra y reserva tu cancha')
-@section('meta_description', 'Busca canchas por distrito y deporte, consulta horarios en tiempo real y confirma tu reserva online mediante Niubiz.')
+@section('meta_description', 'Busca canchas por distrito y deporte, consulta horarios en tiempo real y confirma tu reserva online mediante Stripe.')
 
 @section('content')
 <style nonce="{{ request()->attributes->get('csp_nonce') }}">
@@ -175,7 +175,7 @@
             <div class="feature-tile">
                 <div class="d-flex gap-3">
                     <div class="feature-ico"><i class="bi bi-credit-card"></i></div>
-                    <div><div class="fw-bold">Paga online</div><div class="small muted">Completa el pago con tarjeta mediante Niubiz.</div></div>
+                    <div><div class="fw-bold">Paga online</div><div class="small muted">Completa el pago con tarjeta mediante Stripe.</div></div>
                 </div>
             </div>
         </div>

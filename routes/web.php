@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\Pago\MetodoPagoController;
 use App\Http\Controllers\Admin\Reporte\ReporteReservaController;
 use App\Http\Controllers\Admin\Reporte\ReporteIngresoController;
 use App\Http\Controllers\Cliente\ClienteReservaController;
+use App\Http\Controllers\StripeWebhookController;
 
 Route::get('/', [PaginasController::class, 'inicio'])->name('home');
 Route::get('/terminos-y-condiciones', [PaginasController::class, 'terminos'])->name('web.paginas.terminos');
@@ -174,7 +175,8 @@ Route::middleware(['auth', 'role:1,2'])->group(function () {
 
 // Cliente — reservas y pagos propios
 Route::middleware(['auth', 'role:3'])->group(function () {
-    Route::post('/cliente/niubiz/sesion', [ClienteReservaController::class, 'niubizSesion'])->name('cliente.niubiz.sesion');
+    Route::post('/cliente/stripe/sesion', [ClienteReservaController::class, 'stripeSesion'])->name('cliente.stripe.sesion');
+    Route::get('/cliente/stripe/success', [ClienteReservaController::class, 'stripeSuccess'])->name('cliente.stripe.success');
     Route::get('/cliente/reservas/lista', [ClienteReservaController::class, 'lista'])->name('cliente.reservas.lista');
     Route::get('/cliente/reservas/{id}', [ClienteReservaController::class, 'detalle'])->whereNumber('id')->name('cliente.reservas.detalle');
     Route::get('/cliente/reservas/{id}/comprobante', [ClienteReservaController::class, 'comprobantePdf'])->name('cliente.reservas.comprobante');
@@ -190,9 +192,7 @@ Route::middleware(['auth', 'role:3'])->group(function () {
     Route::get('/cliente/reservas', [ClienteController::class, 'reservas'])->name('cliente.reservas');
 });
 
-// Niubiz confirmar — recibe browser POST de Niubiz (CSRF exempt en bootstrap/app.php)
-Route::post('/cliente/niubiz/confirmar', [ClienteReservaController::class, 'niubizConfirmar'])
-    ->middleware(['auth', 'role:3'])
-    ->name('cliente.niubiz.confirmar');
+// Stripe webhook — llamado por los servidores de Stripe (CSRF exempt en bootstrap/app.php)
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
 
 require __DIR__.'/auth.php';

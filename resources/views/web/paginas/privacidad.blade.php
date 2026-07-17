@@ -33,7 +33,7 @@
                 </ul>
 
                 <h2 class="h5 fw-bold mt-4">3. Pagos</h2>
-                <p>Los pagos online se procesan mediante Niubiz. Los datos sensibles de la tarjeta deben enviarse al proveedor de pagos y no conservarse en la base de datos de PichangasYa.</p>
+                <p>Los pagos online se procesan mediante Stripe. Los datos sensibles de la tarjeta deben enviarse al proveedor de pagos y no conservarse en la base de datos de PichangasYa.</p>
 
                 <h2 class="h5 fw-bold mt-4">4. Acceso a la información</h2>
                 <p>Los complejos acceden únicamente a la información necesaria para administrar sus canchas, reservas, pagos y atención al cliente. El acceso administrativo se encuentra restringido por roles.</p>

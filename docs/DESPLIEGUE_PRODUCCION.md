@@ -24,11 +24,14 @@ LOG_LEVEL=warning
 SESSION_ENCRYPT=true
 SESSION_SECURE_COOKIE=true
 SESSION_SAME_SITE=lax
-NIUBIZ_SIMULADO=false
+STRIPE_KEY=pk_live_xxxxx
+STRIPE_SECRET=sk_live_xxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxx
+STRIPE_CURRENCY=pen
 SUPPORT_EMAIL=soporte@dominio.example
 ```
 
-Generar una clave exclusiva con `php artisan key:generate`. Configurar credenciales reales y diferentes para base de datos, correo y Niubiz. No reutilizar secretos del entorno local.
+Generar una clave exclusiva con `php artisan key:generate`. Configurar credenciales reales y diferentes para base de datos, correo y Stripe (claves `live`, no `test`). No reutilizar secretos del entorno local. El endpoint de webhook (`https://dominio.example/stripe/webhook`) debe registrarse en el Dashboard de Stripe para obtener el `STRIPE_WEBHOOK_SECRET` de producción.
 
 ## 3. Dependencias y recursos
 
@@ -67,7 +70,7 @@ No ejecutar seeders de demostracion en produccion.
 ## 6. Verificacion posterior
 
 - Confirmar que inicio, registro, login, recuperacion y cierre de sesion funcionan.
-- Verificar reservas, pagos simulados desactivados y envio de correo real.
+- Verificar reservas, pago real con Stripe (Checkout + webhook) y envio de correo real.
 - Confirmar que un visitante no puede entrar al panel administrativo.
 - Revisar que `APP_DEBUG` permanezca desactivado ante errores.
 - Ejecutar OWASP ZAP contra el dominio autorizado y comprobar 0 alertas altas, medias y bajas.

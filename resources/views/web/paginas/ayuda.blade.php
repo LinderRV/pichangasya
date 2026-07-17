@@ -14,7 +14,7 @@
     @foreach([
         ['bi-search', '1. Busca', 'Filtra canchas por distrito y tipo de deporte.'],
         ['bi-calendar-check', '2. Selecciona', 'Elige fecha, duración y uno de los horarios disponibles.'],
-        ['bi-credit-card', '3. Paga', 'Revisa el total y completa el pago seguro mediante Niubiz.'],
+        ['bi-credit-card', '3. Paga', 'Revisa el total y completa el pago seguro mediante Stripe.'],
         ['bi-check-circle', '4. Confirma', 'Recibe tu código y consulta la reserva desde tu cuenta.'],
     ] as [$icon, $title, $text])
         <div class="col-12 col-md-6 col-xl-3">

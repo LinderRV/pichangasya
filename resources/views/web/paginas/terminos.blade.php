@@ -29,7 +29,7 @@
                 <p>Los horarios se consultan en tiempo real. Una selección no queda reservada hasta que el pago sea aprobado y el sistema genere un código de reserva. Si el horario deja de estar disponible antes de la confirmación, la operación no debe considerarse completada.</p>
 
                 <h2 class="h5 fw-bold mt-4">4. Precios y pagos</h2>
-                <p>Antes de pagar se muestran la cancha, fecha, horario, duración y total. Los pagos online se procesan mediante Niubiz. PichangasYa no debe almacenar el número completo de tarjeta ni el código de seguridad.</p>
+                <p>Antes de pagar se muestran la cancha, fecha, horario, duración y total. Los pagos online se procesan mediante Stripe. PichangasYa no debe almacenar el número completo de tarjeta ni el código de seguridad.</p>
 
                 <h2 class="h5 fw-bold mt-4">5. Cancelaciones y reprogramaciones</h2>
                 <p>Las solicitudes se coordinan con el complejo mediante los datos publicados en la ficha de la cancha y en “Mis reservas”. Su aprobación depende de la disponibilidad, anticipación y condiciones comunicadas por el establecimiento.</p>
